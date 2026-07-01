@@ -1,0 +1,79 @@
+تقرير المقابلة
+مدة الجلسة: 60 ثانية
+
+تحليل العين:
+ - مركز: 373 (58%)
+ - LEFT: 49 (8%)
+ - RIGHT: 216 (34%)
+
+تحليل وضع الرأس:
+ - أمام: 98 (15%) <-- التركيز الأمامي يتم احتسابه فقط عند عدم النظر إلى مكان آخر
+ - يسار: 276 (43%)
+ - يمين: 262 (41%)
+ - أعلى: 1 (0%)
+ - أسفل: 1 (0%)
+
+تحليل اليدين:
+ - لا توجد يدين: 674 إطارًا (96%)
+ - يد واحدة: 30 إطارًا (4%)
+ - يدان: 0 إطارًا (0%)
+ - متوسط حركة اليد: 15.2
+ - حالة نشاط اليد: Overactive
+
+تحليل العواطف:
+ - Neutral: 1 (3%)
+ - neutral: 16 (46%)
+ - happy: 18 (51%)
+ - الشعور المسيطر: happy
+
+الأحداث الحرجة:
+ - لا توجد
+
+تحليل لمس الوجه:
+ - عدد لمس الوجه: 1
+ - مدة لمس الوجه: 0.17 ثانية
+ - أحداث لمس الوجه الطويلة: 0
+ - عدد مرات تغطية الفم: 1
+ - عدد مرات لمس الجبهة: 0
+ - أحداث دعم الرأس: 0
+
+تقييم جودة المقابلة:
+ - النقاط: 62/100
+
+نقاط القوة:
+ - تردد لمس الوجه منخفض
+ - حركة يد محكومة
+
+نقاط التحسين:
+ - وضعية الرأس غير مستقرة
+
+التقييم النهائي:
+ - أداء جيد مع بعض المجالات التي تحتاج للاستقرار.
+
+
+==================================================
+تقرير تحليل الصوت
+==================================================
+# Voice Classification Timeline Report
+
+This report documents the voice state classifications (Hesitant, Stressed, Enthusiastic, Confident) calculated in **10-second intervals** for each speaker.
+
+## Heuristic Definitions & Calibration
+The classifier calculates Z-scores relative to the average of this recording session to adjust for differences in speaker biology (gender, vocal pitch range) and microphone setups.
+
+| State | Primary Acoustic Profile |
+| :--- | :--- |
+| **Confident** | High voice stability (low jitter/shimmer), strong resonance (high HNR), stable loudness. |
+| **Enthusiastic** | High pitch, high pitch variability, elevated loudness, high spectral flux (dynamic). |
+| **Stressed** | High pitch, elevated loudness, high vocal fold instability (jitter/shimmer), low HNR. |
+| **Hesitant** | Low loudness, low pitch, high vocal fold jitter/shimmer (tremulous), flat articulation. |
+| **Inactive** | Very low energy/volume levels (silence or non-speech duration). |
+
+## 👤 Speaker001
+
+| Time Interval | Classified State | Dominant Characteristic / Feature Highlights |
+| :--- | :--- | :--- |
+| **0s - 10s** | **Hesitant** | Clear tone, Soft projection |
+| **10s - 20s** | **Hesitant** | Lower Pitch, Clear tone, Soft projection |
+| **20s - 30s** | **Enthusiastic** | Elevated Pitch, Vocal instability, Loud projection |
+
