@@ -1,0 +1,1078 @@
+{% extends "base.html" %}
+
+{% block title %}{% if interview_language == 'Arabic' %}تقرير المقابلة — HireFlow{% else %}Interview Report — HireFlow{% endif %}{% endblock %}
+
+{% block content %}
+<div class="report-page">
+
+    <!-- ══════════ TOP HERO BAR ══════════ -->
+    <div class="report-hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="hero-icon">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <h1 class="hero-title">{% if interview_language == 'Arabic' %}تقرير المقابلة{% else %}Your Interview Report{% endif %}</h1>
+                            <p class="hero-sub">{% if interview_language == 'Arabic' %}تحليل ذكي لأداء الفيديو والصوت الخاص بك{% else %}AI-powered analysis of your video & audio performance{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                    <div class="d-flex gap-3 justify-content-md-end align-items-center">
+                        <div class="stat-pill">
+                            <i class="fa-solid fa-clock me-1"></i>
+                            {% if interview_language == 'Arabic' %}{{ duration }} ثانية مسجلة{% else %}{{ duration }}s recorded{% endif %}
+                        </div>
+                        <div class="stat-pill">
+                            <i class="fa-solid fa-language me-1"></i>
+                            {% if interview_language == 'Arabic' %}اللغة: العربية{% else %}Language: {{ interview_language }}{% endif %}
+                        </div>
+                        <a href="{{ url_for('interview_prep') }}" class="btn-back">
+                            <i class="fa-solid fa-rotate-left me-1"></i>
+                            {% if interview_language == 'Arabic' %}مقابلة جديدة{% else %}New Interview{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="row g-4">
+
+            <!-- ═══════════════════════════════ LEFT COLUMN ═══════════════════════════════ -->
+            <div class="col-xl-4 col-lg-5">
+
+                <!-- ── OVERALL SCORE ── -->
+                <div class="report-card score-card mb-4 fade-in-up">
+                    <h5 class="card-section-title"><i class="fa-solid fa-star me-2 text-warning"></i>
+                        {% if interview_language == 'Arabic' %}التقييم العام{% else %}Overall Score{% endif %}
+                    </h5>
+                    <div class="score-ring-wrapper">
+                        <svg class="score-ring" viewBox="0 0 120 120">
+                            <circle class="ring-track" cx="60" cy="60" r="50"/>
+                            <circle class="ring-fill" cx="60" cy="60" r="50"
+                                    style="stroke-dasharray: {{ (advice.score / 100 * 314.16)|round(1) }} 314.16;
+                                           stroke: {% if advice.score >= 80 %}#10b981{% elif advice.score >= 60 %}#f59e0b{% else %}#ef4444{% endif %};"
+                                    id="score-ring-fill"/>
+                        </svg>
+                        <div class="score-number">
+                            <span class="score-val" id="score-counter">0</span>
+                            <span class="score-sep">/100</span>
+                        </div>
+                    </div>
+                    <div class="score-badge
+                        {% if advice.score >= 80 %}badge-excellent{% elif advice.score >= 60 %}badge-good{% else %}badge-poor{% endif %}">
+                        {% if interview_language == 'Arabic' %}
+                            {% if advice.score >= 80 %}🏆 ممتاز{% elif advice.score >= 60 %}👍 جيد{% else %}💪 يحتاج تحسين{% endif %}
+                        {% else %}
+                            {% if advice.score >= 80 %}🏆 Excellent{% elif advice.score >= 60 %}👍 Good{% else %}💪 Needs Work{% endif %}
+                        {% endif %}
+                    </div>
+                    <p class="score-summary">{{ advice.overall_summary }}</p>
+                </div>
+
+                <!-- ── STRENGTHS ── -->
+                {% if advice.strengths %}
+                <div class="report-card mb-4 fade-in-up delay-1" style="border-left: 4px solid #10b981;">
+                    <h6 class="card-section-title"><i class="fa-solid fa-trophy me-2" style="color:#10b981;"></i>
+                        {% if interview_language == 'Arabic' %}نقاط القوة{% else %}Strengths{% endif %}
+                    </h6>
+                    <ul class="check-list">
+                        {% for s in advice.strengths %}
+                        <li class="check-item check-pass">
+                            <i class="fa-solid fa-circle-check"></i> <span>{{ s }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- ── NEEDS IMPROVEMENT ── -->
+                {% if advice.needs_improvement %}
+                <div class="report-card mb-4 fade-in-up delay-1" style="border-left: 4px solid #ef4444;">
+                    <h6 class="card-section-title"><i class="fa-solid fa-triangle-exclamation me-2" style="color:#ef4444;"></i>
+                        {% if interview_language == 'Arabic' %}نقاط التحسين{% else %}Needs Improvement{% endif %}
+                    </h6>
+                    <ul class="check-list">
+                        {% for n in advice.needs_improvement %}
+                        <li class="check-item check-fail">
+                            <i class="fa-solid fa-circle-xmark"></i> <span>{{ n }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- ── FINAL ASSESSMENT ── -->
+                {% if advice.final_assessment %}
+                <div class="report-card" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+                    <h6 class="card-section-title"><i class="fa-solid fa-clipboard-check me-2 text-primary"></i>
+                        {% if interview_language == 'Arabic' %}التقييم النهائي{% else %}Final Assessment{% endif %}
+                    </h6>
+                    <p class="mb-0 text-secondary" style="font-size:0.92rem; line-height:1.7;">{{ advice.final_assessment }}</p>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- ═══════════════════════════════ RIGHT COLUMN ═══════════════════════════════ -->
+            <div class="col-xl-8 col-lg-7">
+
+                <!-- ── TABS ── -->
+                <div class="tab-row mb-4">
+                    <button class="tab-btn active" id="tab-report" onclick="switchTab('report')">
+                        <i class="fa-solid fa-chart-bar me-2"></i>
+                        {% if interview_language == 'Arabic' %}التقرير التفصيلي{% else %}Detailed Report{% endif %}
+                    </button>
+                    <button class="tab-btn" id="tab-chat" onclick="switchTab('chat')">
+                        <i class="fa-solid fa-robot me-2"></i>
+                        {% if interview_language == 'Arabic' %}دردشة المساعد الذكي{% else %}AI Coach Chat{% endif %}
+                        <span class="tab-badge">{% if interview_language == 'Arabic' %}جديد{% else %}NEW{% endif %}</span>
+                    </button>
+                </div>
+
+                <!-- ── REPORT TAB ── -->
+                <div id="panel-report">
+
+                    <!-- Metrics Grid -->
+                    <div class="row g-3 mb-4">
+                        {% for section in advice.advice_sections[:4] %}
+                        <div class="col-sm-6">
+                            <div class="metric-mini-card
+                                {% if section.status == 'excellent' %}metric-excellent
+                                {% elif section.status == 'good' %}metric-good
+                                {% elif section.status == 'warning' %}metric-warning
+                                {% else %}metric-poor{% endif %}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="metric-label">{{ section.category }}</div>
+                                        <div class="metric-detail">{{ section.score_detail }}</div>
+                                    </div>
+                                    <i class="fa-solid {{ section.icon }} metric-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Detailed Advice Sections -->
+                    <div id="advice-sections">
+                        {% for section in advice.advice_sections %}
+                        <div class="advice-card mb-3
+                            {% if section.status == 'excellent' %}advice-excellent
+                            {% elif section.status == 'good' %}advice-good
+                            {% elif section.status == 'warning' %}advice-warning
+                            {% elif section.status == 'critical' %}advice-critical
+                            {% else %}advice-poor{% endif %}"
+                            style="animation-delay: {{ loop.index * 0.08 }}s">
+
+                            <div class="advice-header" onclick="toggleAdvice(this)">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="advice-icon-wrap">
+                                        <i class="fa-solid {{ section.icon }}"></i>
+                                    </div>
+                                    <div>
+                                        <div class="advice-title">{{ section.category }}</div>
+                                        <div class="advice-subtitle">{{ section.score_detail }}</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="status-badge
+                                        {% if section.status == 'excellent' %}sb-excellent
+                                        {% elif section.status == 'good' %}sb-good
+                                        {% elif section.status == 'warning' %}sb-warning
+                                        {% elif section.status == 'critical' %}sb-critical
+                                        {% else %}sb-poor{% endif %}">
+                                        {% if section.status == 'excellent' %}{% if interview_language == 'Arabic' %}✓ ممتاز{% else %}✓ Excellent{% endif %}
+                                        {% elif section.status == 'good' %}{% if interview_language == 'Arabic' %}◎ جيد{% else %}◎ Good{% endif %}
+                                        {% elif section.status == 'warning' %}{% if interview_language == 'Arabic' %}⚠ تحذير{% else %}⚠ Warning{% endif %}
+                                        {% elif section.status == 'critical' %}{% if interview_language == 'Arabic' %}⛔ حرج{% else %}⛔ Critical{% endif %}
+                                        {% else %}{% if interview_language == 'Arabic' %}✗ يحتاج تحسين{% else %}✗ Needs Work{% endif %}{% endif %}
+                                    </span>
+                                    <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                                </div>
+                            </div>
+
+                            <div class="advice-body d-flex flex-column gap-3">
+                                {% for msg in section.messages %}
+                                    {% if msg.startswith('INTERVAL:') %}
+                                        <div class="voice-interval-card">
+                                            {{ msg[9:] }}
+                                        </div>
+                                    {% elif msg.startswith('VOICE_SUMMARY:') %}
+                                        {% set stats = msg[14:].split(',') %}
+                                        <div class="emotional-profile mt-4 mb-3">
+                                            <h6 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Overall Emotional Profile</h6>
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <div class="p-3 bg-white border rounded-3 shadow-sm">
+                                                        <div class="text-muted small fw-bold text-uppercase mb-1">Confident / Enthusiastic</div>
+                                                        <div class="fs-4 fw-bolder text-dark mb-2">{{ stats[0] }}%</div>
+                                                        <div class="progress" style="height: 6px;">
+                                                            <div class="progress-bar bg-success" style="width: {{ stats[0] }}%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="p-3 bg-white border rounded-3 shadow-sm">
+                                                        <div class="text-muted small fw-bold text-uppercase mb-1">{% if interview_language == 'Arabic' %}متردد / خائف{% else %}Hesitant / Scared{% endif %}</div>
+                                                        <div class="fs-4 fw-bolder text-dark mb-2">{{ stats[1] }}%</div>
+                                                        <div class="progress" style="height: 6px;">
+                                                            <div class="progress-bar bg-warning" style="width: {{ stats[1] }}%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="p-3 bg-white border rounded-3 shadow-sm">
+                                                        <div class="text-muted small fw-bold text-uppercase mb-1">{% if interview_language == 'Arabic' %}متوتر{% else %}Stressed{% endif %}</div>
+                                                        <div class="fs-4 fw-bolder text-dark mb-2">{{ stats[2] }}%</div>
+                                                        <div class="progress" style="height: 6px;">
+                                                            <div class="progress-bar bg-danger" style="width: {{ stats[2] }}%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="msg-bubble
+                                            {% if msg.startswith('Tip:') or msg.startswith('نصيحة:') %}msg-tip
+                                            {% elif msg.startswith('WARNING:') or msg.startswith('تحذير:') %}msg-warning
+                                            {% else %}msg-info{% endif %}">
+                                            {% if msg.startswith('Tip:') or msg.startswith('نصيحة:') %}
+                                                <i class="fa-solid fa-lightbulb"></i>
+                                                <span>{{ msg[ msg.startswith('Tip:') and 4 or 6 :] }}</span>
+                                            {% elif msg.startswith('WARNING:') or msg.startswith('تحذير:') %}
+                                                <i class="fa-solid fa-exclamation-triangle"></i>
+                                                <span>{{ msg }}</span>
+                                            {% else %}
+                                                <i class="fa-solid fa-circle-info"></i>
+                                                <span>{{ msg }}</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+                <!-- ── CHAT TAB ── -->
+                <div id="panel-chat" style="display:none;">
+                    <div class="chatbot-wrapper">
+
+                        <!-- Chat Header -->
+                        <div class="chat-header">
+                            <div class="bot-avatar">
+                                <i class="fa-solid fa-robot"></i>
+                                <div class="bot-online"></div>
+                            </div>
+                            <div>
+                                <div class="bot-name">HireFlow AI Coach</div>
+                                <div class="bot-status">{% if interview_language == 'Arabic' %}جاهز لمساعدتك على التحسن{% else %}Ready to help you improve{% endif %}</div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- Initial bot messages injected by JS -->
+                        </div>
+
+                        <!-- Suggested Questions -->
+                        <div class="suggestions-row" id="suggestions-row">
+                            {% if interview_language == 'Arabic' %}
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">كيف أحسّن تواصلي البصري؟</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">نصائح لثقة صوت أفضل؟</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">كيف أخفف التوتر في المقابلات؟</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">ما هي طريقة STAR؟</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">كيف أجاوب على سؤال: عرفني عن نفسك؟</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">نصائح لغة الجسد في المقابلات؟</button>
+                            {% else %}
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">How can I improve my eye contact?</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">Tips for better voice confidence?</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">How do I reduce anxiety in interviews?</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">What is the STAR method?</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">How to answer 'Tell me about yourself'?</button>
+                            <button class="suggestion-chip" onclick="sendSuggestion(this)">Body language tips for interviews?</button>
+                            {% endif %}
+                        </div>
+
+                        <!-- Input -->
+                        <div class="chat-input-row">
+                            <input type="text" id="chat-input" class="chat-input-field"
+                                   placeholder="{% if interview_language == 'Arabic' %}اسألني عن أداء المقابلة...{% else %}Ask me anything about interview performance...{% endif %}"
+                                   onkeydown="if(event.key==='Enter') sendMessage()">
+                            <button class="chat-send-btn" onclick="sendMessage()" id="send-btn">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--  STYLES                                        -->
+<!-- ══════════════════════════════════════════════ -->
+<style>
+/* ── Page ── */
+.report-page { background: #f8faff; min-height: 100vh; }
+
+/* ── Hero ── */
+.report-hero {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    padding: 28px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.hero-icon {
+    width: 54px; height: 54px;
+    background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; color: #fff;
+    flex-shrink: 0;
+}
+.hero-title {
+    font-size: 1.6rem; font-weight: 800;
+    color: #fff; margin: 0;
+}
+.hero-sub {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.88rem; margin: 0;
+}
+.stat-pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.83rem;
+}
+.btn-back {
+    background: #6366f1;
+    color: #fff; border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 0.85rem; font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.btn-back:hover { background: #4f46e5; color: #fff; }
+
+/* ── Cards ── */
+.report-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+.card-section-title {
+    font-size: 0.88rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: #64748b; margin-bottom: 16px;
+}
+
+/* ── Score Ring ── */
+.score-card { text-align: center; }
+.score-ring-wrapper {
+    position: relative;
+    width: 140px; height: 140px;
+    margin: 16px auto;
+}
+.score-ring {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+}
+.ring-track {
+    fill: none;
+    stroke: #f1f5f9;
+    stroke-width: 8;
+}
+.ring-fill {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dasharray 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.score-number {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+}
+.score-val {
+    font-size: 2.2rem; font-weight: 800;
+    color: #1e293b;
+}
+.score-sep { font-size: 0.9rem; color: #94a3b8; }
+.score-badge {
+    display: inline-block;
+    border-radius: 99px;
+    padding: 5px 18px;
+    font-size: 0.85rem; font-weight: 700;
+    margin-bottom: 12px;
+}
+.badge-excellent { background: #dcfce7; color: #065f46; }
+.badge-good      { background: #fef9c3; color: #713f12; }
+.badge-poor      { background: #fee2e2; color: #7f1d1d; }
+.score-summary {
+    font-size: 0.88rem; color: #475569;
+    line-height: 1.6; margin: 0;
+}
+
+/* ── Check Lists ── */
+.check-list { list-style: none; padding: 0; margin: 0; }
+.check-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+.check-item:last-child { border-bottom: none; }
+.check-pass { color: #065f46; }
+.check-pass i { color: #10b981; margin-top:2px; }
+.check-fail { color: #7f1d1d; }
+.check-fail i { color: #ef4444; margin-top:2px; }
+
+/* ── Tabs ── */
+.tab-row { display: flex; gap: 8px; }
+.tab-btn {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 0.88rem; font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+.tab-btn:hover { border-color: #6366f1; color: #6366f1; }
+.tab-btn.active {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.3);
+}
+.tab-badge {
+    background: #f59e0b;
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* ── Metric Mini Cards ── */
+.metric-mini-card {
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid transparent;
+}
+.metric-excellent { background: #f0fdf4; border-color: #bbf7d0; }
+.metric-good      { background: #eff6ff; border-color: #bfdbfe; }
+.metric-warning   { background: #fffbeb; border-color: #fde68a; }
+.metric-poor      { background: #fff1f2; border-color: #fecdd3; }
+.metric-label {
+    font-size: 0.8rem; font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.metric-detail { font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-top: 4px; }
+.metric-icon { font-size: 1.6rem; opacity: 0.3; }
+
+/* ── Advice Cards ── */
+.advice-card {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    animation: fadeUp 0.4s ease both;
+}
+@keyframes fadeUp {
+    from { opacity:0; transform:translateY(14px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+.advice-excellent { border-left: 4px solid #10b981; }
+.advice-good      { border-left: 4px solid #3b82f6; }
+.advice-warning   { border-left: 4px solid #f59e0b; }
+.advice-critical  { border-left: 4px solid #dc2626; }
+.advice-poor      { border-left: 4px solid #ef4444; }
+
+.advice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+}
+.advice-header:hover { background: #f8faff; }
+.advice-icon-wrap {
+    width: 36px; height: 36px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem; color: #6366f1;
+}
+.advice-title { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
+.advice-subtitle { font-size: 0.78rem; color: #94a3b8; margin-top: 1px; }
+.toggle-icon { color: #94a3b8; transition: transform 0.3s; }
+.advice-header.open .toggle-icon { transform: rotate(180deg); }
+
+.advice-body {
+    padding: 0 18px;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+}
+.advice-body.open {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 4px 18px 16px;
+}
+
+/* Status Badges */
+.status-badge {
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 0.73rem; font-weight: 700;
+}
+.sb-excellent { background: #dcfce7; color: #065f46; }
+.sb-good      { background: #dbeafe; color: #1e40af; }
+.sb-warning   { background: #fef3c7; color: #92400e; }
+.sb-critical  { background: #fee2e2; color: #991b1b; }
+.sb-poor      { background: #fee2e2; color: #991b1b; }
+
+/* ── Message Bubbles ── */
+.msg-bubble {
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 0.98rem;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    line-height: 1.7;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+.msg-info { background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; }
+.msg-tip { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+.msg-warning { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+.msg-closing { background: linear-gradient(to right, #e0e7ff, #ede9fe); border: 1px solid #c7d2fe; color: #3730a3; font-weight: 500; font-size: 1rem; }
+
+.msg-bubble i { margin-top: 3px; }
+.msg-info i { color: #64748b; }
+.msg-tip i { color: #22c55e; }
+.msg-warning i { color: #ef4444; }
+
+/* Voice Intervals */
+.voice-interval-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #6366f1;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #475569;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+/* ══════════════════════════════
+   CHATBOT STYLES
+══════════════════════════════ */
+.chatbot-wrapper {
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 680px;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    flex-shrink: 0;
+}
+.bot-avatar {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; color: #fff;
+    position: relative;
+    flex-shrink: 0;
+}
+.bot-online {
+    width: 11px; height: 11px;
+    background: #10b981;
+    border-radius: 50%;
+    border: 2px solid #1e293b;
+    position: absolute;
+    bottom: 0; right: 0;
+}
+.bot-name { font-size: 0.95rem; font-weight: 700; color: #fff; }
+.bot-status { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #f8faff;
+}
+.chat-messages::-webkit-scrollbar { width: 5px; }
+.chat-messages::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 99px; }
+
+.cm-bot, .cm-user {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    animation: msgIn 0.3s ease both;
+}
+@keyframes msgIn {
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+.cm-bot { flex-direction: row; }
+.cm-user { flex-direction: row-reverse; }
+
+.cm-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+.cm-avatar-bot {
+    background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    color: #fff;
+}
+.cm-avatar-user {
+    background: #e2e8f0;
+    color: #475569;
+}
+.cm-bubble {
+    max-width: 78%;
+    padding: 11px 14px;
+    border-radius: 14px;
+    font-size: 0.87rem;
+    line-height: 1.6;
+}
+.cm-bubble-bot {
+    background: #fff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.cm-bubble-user {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+/* Typing Indicator */
+.typing-indicator {
+    display: flex; gap: 4px;
+    align-items: center;
+    padding: 6px 4px;
+}
+.typing-dot {
+    width: 7px; height: 7px;
+    background: #94a3b8;
+    border-radius: 50%;
+    animation: typingBounce 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30%           { transform: translateY(-6px); }
+}
+
+/* Suggestions */
+.suggestions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 16px;
+    border-top: 1px solid #f1f5f9;
+    background: #fff;
+    flex-shrink: 0;
+}
+.suggestion-chip {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 99px;
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.suggestion-chip:hover {
+    background: #6366f1;
+    color: #fff;
+    border-color: #6366f1;
+}
+
+/* Input Row */
+.chat-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 14px 16px;
+    border-top: 1px solid #e2e8f0;
+    background: #fff;
+    flex-shrink: 0;
+}
+.chat-input-field {
+    flex: 1;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+.chat-input-field:focus { border-color: #6366f1; }
+.chat-send-btn {
+    background: #6366f1;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    color: #fff;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+.chat-send-btn:hover { background: #4f46e5; }
+.chat-send-btn:active { transform: scale(0.95); }
+</style>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--  JAVASCRIPT                                    -->
+<!-- ══════════════════════════════════════════════ -->
+<script>
+// ══════════════════════════
+//  SCORE COUNTER ANIMATION
+// ══════════════════════════
+const INTERVIEW_LANGUAGE = "{{ interview_language }}";
+const targetScore = {{ advice.score }};
+let currentCount = 0;
+const counterEl = document.getElementById('score-counter');
+const step = Math.ceil(targetScore / 60);
+const counterTimer = setInterval(() => {
+    currentCount = Math.min(currentCount + step, targetScore);
+    counterEl.textContent = currentCount;
+    if (currentCount >= targetScore) clearInterval(counterTimer);
+}, 25);
+
+// ══════════════════════════
+//  TAB SWITCHER
+// ══════════════════════════
+function switchTab(tab) {
+    document.getElementById('panel-report').style.display = tab === 'report' ? 'block' : 'none';
+    document.getElementById('panel-chat').style.display   = tab === 'chat'   ? 'block' : 'none';
+    document.getElementById('tab-report').classList.toggle('active', tab === 'report');
+    document.getElementById('tab-chat').classList.toggle('active', tab === 'chat');
+
+    if (tab === 'chat' && !chatInitialized) {
+        initChat();
+        chatInitialized = true;
+    }
+}
+
+// ══════════════════════════
+//  ACCORDION TOGGLE
+// ══════════════════════════
+function toggleAdvice(header) {
+    const body = header.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.advice-body.open').forEach(b => {
+        b.classList.remove('open');
+        b.previousElementSibling.classList.remove('open');
+    });
+    if (!isOpen) {
+        body.classList.add('open');
+        header.classList.add('open');
+    }
+}
+// Open first section by default
+window.addEventListener('DOMContentLoaded', () => {
+    const firstHeader = document.querySelector('.advice-header');
+    if (firstHeader) toggleAdvice(firstHeader);
+});
+
+// ══════════════════════════
+//  CHATBOT ENGINE
+// ══════════════════════════
+let chatInitialized = false;
+const messagesContainer = document.getElementById('chat-messages');
+
+// Advice data passed from backend (stringified)
+const reportData = {
+    score: {{ advice.score }},
+    summary: {{ advice.overall_summary | tojson }},
+    strengths: {{ advice.strengths | tojson }},
+    needs_improvement: {{ advice.needs_improvement | tojson }},
+    sections: {{ advice.advice_sections | tojson }}
+};
+
+// Knowledge Base for local answers
+const KB = {
+    "eye contact": {
+        en: `**Eye Contact Tips:**\n• Position your camera at eye level — looking at the screen should feel natural.\n• Place a small colored sticker next to your webcam lens as a reminder.\n• Practice the **50/70 rule**: maintain eye contact 50% of the time while speaking, 70% while listening.\n• Avoid having notes placed far from your screen during the interview.`,
+        ar: `**نصائح التواصل البصري:**\n• ضع الكاميرا على مستوى العين حتى يبدو النظر إلى الشاشة طبيعيًا.\n• ضع ملصقًا صغيرًا بجانب عدسة الكاميرا كتذكير.\n• مارس قاعدة **50/70**: حافظ على التواصل البصري 50% من الوقت أثناء الحديث و70% أثناء الاستماع.\n• تجنب وضع الملاحظات بعيدًا عن الشاشة أثناء المقابلة.`
+    },
+
+    "voice": {
+        en: `**Voice & Confidence Tips:**\n• Speak slightly louder than feels comfortable — microphones pick up volume inconsistencies.\n• Rehearse answers out loud, not just in your head — this builds vocal muscle memory.\n• Eliminate filler words (um, uh, like) by practicing deliberate pauses instead.\n• Slow down if you feel nervous — stressed people tend to rush their speech.`,
+        ar: `**نصائح الصوت والثقة:**\n• تكلم بصوت أعلى قليلًا مما يبدو مريحًا — الميكروفونات تلتقط التباينات في الصوت.\n• درب إجاباتك بصوت مرتفع، وليس فقط في رأسك — هذا يبني ذاكرة صوتية.\n• تجنب كلمات الحشو (أم، آه، مثلًا) عبر ممارسة التوقف المقصود.\n• أبطئ إذا كنت متوترًا — الأشخاص المتوترون يميلون إلى تسريع كلامهم.`
+    },
+
+    "anxiety": {
+        en: `**Managing Interview Anxiety:**\n• Try the **4-7-8 breathing** technique: inhale 4s → hold 7s → exhale 8s.\n• Do a **power pose** for 2 minutes before the interview (hands on hips, stand tall).\n• Prepare answers for the 10 most common interview questions beforehand.\n• Remember: the interviewer *wants* you to succeed — they're rooting for you!`,
+        ar: `**إدارة توتر المقابلة:**\n• جرّب تقنية التنفس **4-7-8**: استنشق 4 ثوانٍ → احبس 7 ثوانٍ → أزفر 8 ثوانٍ.\n• مارس وضعية القوة لمدة دقيقتين قبل المقابلة (الوقوف منتصبًا واليدان على الوركين).\n• حضّر إجابات على 10 أسئلة مقابلة شائعة مسبقًا.\n• تذكر: المحاور يريد أن تنجح — هو معك!`
+    },
+
+    "star method": {
+        en: `**The STAR Method:**\n**S** — **Situation**: Set the scene. What was the context?\n**T** — **Task**: What was your responsibility?\n**A** — **Action**: What specific steps did YOU take?\n**R** — **Result**: What was the measurable outcome?\n\n*Example*: "In my last job (S), I was asked to reduce onboarding time (T). I created a video training series (A), which cut onboarding from 2 weeks to 3 days (R)."`,
+        ar: `**طريقة STAR:**\n**S** — **الوضع**: اشرح السياق. ما كان الوضع؟\n**T** — **المهمة**: ما كانت مسؤوليتك؟\n**A** — **الإجراء**: ما الخطوات المحددة التي قمت بها؟\n**R** — **النتيجة**: ما كانت النتيجة القابلة للقياس؟\n\n*مثال*: "في عملي السابق (S)، طُلب مني تقليل وقت التدريب (T). أنشأت سلسلة فيديو تعليمية (A)، مما اختصر التدريب من أسبوعين إلى 3 أيام (R)."`
+    },
+
+    "tell me about yourself": {
+        en: `**Answering 'Tell Me About Yourself':**\n\nUse the **Present → Past → Future** formula:\n1. **Present**: Your current role & top skills\n2. **Past**: Key experiences that shaped you\n3. **Future**: Why you're excited about *this* role\n\nKeep it to **90 seconds max**. Practice until it feels natural, not rehearsed.`,
+        ar: `**الإجابة على 'احكِ لي عن نفسك':**\n\nاستخدم صيغة **الحاضر → الماضي → المستقبل**:\n1. **الحاضر**: دورك الحالي وأهم مهاراتك\n2. **الماضي**: تجارب رئيسية شكّلتك\n3. **المستقبل**: لماذا أنت متحمس لهذا الدور؟\n\nاجعل إجابتك في **90 ثانية كحد أقصى**. تدرب حتى تبدو طبيعية وليس محفوظة.`
+    },
+
+    "body language": {
+        en: `**Body Language in Interviews:**\n• Keep your spine straight — good posture signals confidence.\n• Keep hands **visible** on the desk — hidden hands create distrust.\n• Avoid crossing your arms — it signals defensiveness.\n• Nod slowly when the interviewer speaks — shows active listening.\n• Smile genuinely at the start and end of the interview — first/last impressions matter most.`,
+        ar: `**لغة الجسد في المقابلات:**\n• اجعل عمودك الفقري مستقيمًا — الوضعية الجيدة تبدي ثقة.\n• اجعل يديك **مرئيتيْن** على المكتب — اليدان المخفيتان تخلق شعورًا بعدم الثقة.\n• تجنب تقاطع الذراعين — هذا يشير إلى الدفاعية.\n• أومئ ببطء عندما يتحدث المحاور — يظهر ذلك الاستماع الفعال.\n• ابتسم بصدق في بداية ونهاية المقابلة — الانطباعات الأولى والأخيرة مهمة.`
+    },
+
+    "weakness": {
+        en: `**Answering 'What's Your Weakness?':**\n• Choose a **real** weakness (not "I work too hard").\n• Show **self-awareness** and that you're actively working on it.\n• Example: "I used to struggle with public speaking. I joined a Toastmasters group 6 months ago and have presented to 50+ people since."\n• Avoid weaknesses that are **core requirements** of the job.`,
+        ar: `**الإجابة على 'ما هي نقطة ضعفك؟':**\n• اختر نقطة ضعف **حقيقية** (ليس "أعمل بجد زائد").\n• أظهر **الوعي الذاتي** وأنك تعمل على تحسينها.\n• مثال: "كنت أواجه صعوبة في التحدث أمام الجمهور. انضممت لمجموعة Toastmasters قبل 6 أشهر وقدمت عروضًا لأكثر من 50 شخصًا منذ ذلك الحين."\n• تجنب نقاط الضعف التي تعتبر متطلبات أساسية للوظيفة.`
+    },
+
+    "strengths": {
+        en: `**Answering 'What Are Your Strengths?':**\n• Pick strengths **relevant to the role**.\n• Back each strength with a **specific example**.\n• Limit to 2-3 strengths and go deep, rather than listing 10 superficially.\n• Use confident language: "My greatest strength is..." not "I think maybe I'm good at..."`,
+        ar: `**الإجابة على 'ما هي نقاط قوتك؟':**\n• اختر نقاط قوة **مرتبطة بالدور**.\n• ادعم كل نقطة مثالًا **محددًا**.\n• حدد 2-3 نقاط قوة وكن متعمقًا بدلاً من تعداد 10 بشكل سطحي.\n• استخدم لغة واثقة: "أكبر نقطة قوتي هي..." وليس "أعتقد ربما أنا جيد في..."`
+    },
+
+    "default": {
+        en: null,
+        ar: null
+    }
+};
+
+function getLocalAnswer(question) {
+    const q = question.toLowerCase();
+    const lang = INTERVIEW_LANGUAGE === 'Arabic' ? 'ar' : 'en';
+    if (q.includes('eye') || q.includes('contact') || q.includes('بصري')) return KB['eye contact'][lang];
+    if (q.includes('voice') || q.includes('speak') || q.includes('confidence') || q.includes('tone') || q.includes('صوت')) return KB['voice'][lang];
+    if (q.includes('anxi') || q.includes('nerv') || q.includes('stress') || q.includes('fear') || q.includes('توتر') || q.includes('قلق')) return KB['anxiety'][lang];
+    if (q.includes('star') || q.includes('ستار')) return KB['star method'][lang];
+    if (q.includes('tell me about') || q.includes('yourself') || q.includes('عرفني عن نفسك') || q.includes('احك لي عن نفسك')) return KB['tell me about yourself'][lang];
+    if (q.includes('body language') || q.includes('posture') || q.includes('gesture') || q.includes('لغة الجسد')) return KB['body language'][lang];
+    if (q.includes('weakness') || q.includes('improve') || q.includes('ضعف')) return KB['weakness'][lang];
+    if (q.includes('strength') || q.includes('قوة')) return KB['strengths'][lang];
+    return null;
+}
+
+function generateContextualAnswer(question) {
+    const q = question.toLowerCase();
+
+    // Score-related
+    if (q.includes('score') || q.includes('result') || q.includes('perform')) {
+        return `Your overall score is **${reportData.score}/100** — ${reportData.summary}\n\n` +
+               (reportData.strengths.length > 0 ? `✅ **Strengths:** ${reportData.strengths.slice(0,2).join(', ')}\n` : '') +
+               (reportData.needs_improvement.length > 0 ? `🔧 **Areas to improve:** ${reportData.needs_improvement.slice(0,2).join(', ')}` : '');
+    }
+
+    // Section-specific
+    for (const s of reportData.sections) {
+        if (q.includes(s.category.toLowerCase())) {
+            const msgs = s.messages.slice(0,3).join('\n• ');
+            return `**${s.category}** — ${s.score_detail}\n\n• ${msgs}`;
+        }
+    }
+
+    // Generic fallback
+    return `Great question! Based on your interview score of **${reportData.score}/100**, I'd suggest focusing on: ${
+        reportData.needs_improvement.length > 0
+            ? reportData.needs_improvement.slice(0,2).join(' and ')
+            : 'maintaining your excellent performance!'
+    }\n\nFeel free to ask me about specific topics like eye contact, voice, body language, or interview strategies!`;
+}
+
+function addMessage(text, sender) {
+    const row = document.createElement('div');
+    row.className = sender === 'bot' ? 'cm-bot' : 'cm-user';
+
+    const avatar = document.createElement('div');
+    avatar.className = `cm-avatar ${sender === 'bot' ? 'cm-avatar-bot' : 'cm-avatar-user'}`;
+    avatar.innerHTML = sender === 'bot' ? '<i class="fa-solid fa-robot"></i>' : '<i class="fa-solid fa-user"></i>';
+
+    const bubble = document.createElement('div');
+    bubble.className = `cm-bubble ${sender === 'bot' ? 'cm-bubble-bot' : 'cm-bubble-user'}`;
+
+    // Render markdown-like formatting
+    bubble.innerHTML = formatMessage(text);
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    messagesContainer.appendChild(row);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    return row;
+}
+
+function formatMessage(text) {
+    let formattedText = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n\*/g, '<br>•')
+        .replace(/\n-/g, '<br>•')
+        .replace(/\n/g, '<br>');
+        
+    return `<div class="msg-text">${formattedText}</div>`;
+}
+
+function showLocalMessage(message) {
+    const row = document.createElement('div');
+    row.className = 'cm-bot';
+    const avatar = document.createElement('div');
+    avatar.className = 'cm-avatar cm-avatar-bot';
+    avatar.innerHTML = '<i class="fa-solid fa-robot"></i>';
+    const bubble = document.createElement('div');
+    bubble.className = 'cm-bubble cm-bubble-bot';
+    bubble.innerHTML = `<div class="msg-text">${message}</div>`;
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    messagesContainer.appendChild(row);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTyping() {
+    const row = document.createElement('div');
+    row.className = 'cm-bot';
+    row.id = 'typing-row';
+    const avatar = document.createElement('div');
+    avatar.className = 'cm-avatar cm-avatar-bot';
+    avatar.innerHTML = '<i class="fa-solid fa-robot"></i>';
+    const bubble = document.createElement('div');
+    bubble.className = 'cm-bubble cm-bubble-bot';
+    bubble.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    messagesContainer.appendChild(row);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    return row;
+}
+
+function removeTyping() {
+    const el = document.getElementById('typing-row');
+    if (el) el.remove();
+}
+
+window.chatHistory = [];
+
+async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, 'user');
+    window.chatHistory.push({ text: text, sender: 'user' });
+    input.value = '';
+
+    // Hide suggestions after first message
+    document.getElementById('suggestions-row').style.display = 'none';
+
+    const typingEl = showTyping();
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, history: window.chatHistory.slice(0, -1) }) // Pass history excluding current message
+        });
+        
+        const data = await response.json();
+        removeTyping();
+        
+        if (data.reply) {
+            addMessage(data.reply, 'bot');
+            window.chatHistory.push({ text: data.reply, sender: 'bot' });
+        } else {
+            addMessage({% if interview_language == 'Arabic' %}"عذرًا، لم أتمكن من معالجة ذلك."{% else %}"I'm sorry, I couldn't process that."{% endif %}, 'bot');
+        }
+    } catch (err) {
+        console.error(err);
+        removeTyping();
+        addMessage({% if interview_language == 'Arabic' %}"⚠️ خطأ في الشبكة. حاول مرة أخرى لاحقًا."{% else %}"⚠️ Network error. Please try again later."{% endif %}, 'bot');
+    }
+}
+
+function sendSuggestion(btn) {
+    const text = btn.textContent.trim();
+    document.getElementById('chat-input').value = text;
+    sendMessage();
+}
+
+async function initChat() {
+    const typingEl = showTyping();
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: "GENERATE_INITIAL_ANALYSIS", history: [] })
+        });
+        
+        const data = await response.json();
+        removeTyping();
+        
+        if (data.reply) {
+            addMessage(data.reply, 'bot');
+            window.chatHistory.push({ text: data.reply, sender: 'bot' });
+        } else {
+            // Fallback
+            addMessage({% if interview_language == 'Arabic' %}"مرحبًا! أنا مدربك الذكي. لقد حللت تقريرك. اسألني أي شيء!"{% else %}"Hi! I'm your AI Coach. I've analyzed your report. Ask me anything!"{% endif %}, 'bot');
+        }
+    } catch (err) {
+        console.error(err);
+        removeTyping();
+        addMessage({% if interview_language == 'Arabic' %}"مرحبًا! أنا مدربك الذكي. لقد حللت تقريرك. اسألني أي شيء!"{% else %}"Hi! I'm your AI Coach. I've analyzed your report. Ask me anything!"{% endif %}, 'bot');
+    }
+}
+</script>
+
+{% endblock %}

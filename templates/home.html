@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}HireFlow — AI Career Intelligence{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container text-center">
+        <div class="hero-badge"><i class="fa-solid fa-sparkles"></i> AI Career Intelligence Platform</div>
+        <h1 class="hero-title">Turn your career story into a <span class="text-gradient">premium hiring advantage</span></h1>
+        <p class="hero-subtitle">From ATS-ready resumes to interview confidence, HireFlow helps professionals stand out with an intelligent, elegant experience built for 2026 hiring.</p>
+        <div class="hero-actions">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('hub') }}" class="btn btn-primary-custom"><i class="fa-solid fa-grid-2 me-2"></i> Open Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary-custom"><i class="fa-solid fa-user-plus me-2"></i> Start Free</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary-custom"><i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Sign In</a>
+            {% endif %}
+        </div>
+        <div class="trust-strip">
+            <span class="trust-pill"><i class="fa-solid fa-shield-halved me-1"></i> Secure & Private</span>
+            <span class="trust-pill"><i class="fa-solid fa-bolt me-1"></i> Instant Insights</span>
+            <span class="trust-pill"><i class="fa-solid fa-robot me-1"></i> AI-guided Coaching</span>
+        </div>
+
+        <div class="hero-visual">
+            <div class="dashboard-preview">
+                <div class="preview-pane">
+                    <div class="preview-row">
+                        <strong>Interview readiness score</strong>
+                        <span class="preview-pill">84/100</span>
+                    </div>
+                    <div class="preview-row">
+                        <span>ATS compatibility</span>
+                        <span>92%</span>
+                    </div>
+                    <div class="preview-row">
+                        <span>Skill alignment</span>
+                        <span>87%</span>
+                    </div>
+                    <div class="preview-row">
+                        <span>Interview feedback</span>
+                        <span>5 actionable tips</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">Everything you need to move from application to offer</h2>
+            <p class="section-copy mx-auto">A premium, AI-native workspace for resumes, matching, and interview confidence.</p>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <i class="fa-solid fa-file-pdf"></i>
+                <h4>ATS Resume Analysis</h4>
+                <p>Get clarity on structure, formatting, skills, and overall ATS compatibility.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-briefcase"></i>
+                <h4>Job Matching</h4>
+                <p>Compare your profile against a job description and uncover gaps instantly.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-video"></i>
+                <h4>Smart Interview Prep</h4>
+                <p>Practice with a polished AI interview experience and receive actionable feedback.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card"><strong>92%</strong><span>ATS pass rate</span></div>
+            <div class="stat-card"><strong>4.9/5</strong><span>user satisfaction</span></div>
+            <div class="stat-card"><strong>10k+</strong><span>resumes analyzed</span></div>
+            <div class="stat-card"><strong>24/7</strong><span>AI guidance</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <div class="saas-card quote-card">
+                    <h3 class="mb-3">Why professionals choose HireFlow</h3>
+                    <p>It feels like a premium AI platform — not a generic tool. Every interaction is designed to feel clear, trustworthy, and high-impact.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="saas-card">
+                    <h4 class="mb-3">What you get</h4>
+                    <ul class="detail-list">
+                        <li class="detected"><i class="fa-solid fa-check"></i><span>Resume optimization and ATS scoring</span></li>
+                        <li class="detected"><i class="fa-solid fa-check"></i><span>Smart job-to-skill matching</span></li>
+                        <li class="detected"><i class="fa-solid fa-check"></i><span>Personalized interview preparation</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">Frequently asked questions</h2>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6"><div class="faq-item"><strong>Is it suitable for any profession?</strong><p class="mb-0 mt-2">Yes — the platform adapts to your target role and background.</p></div></div>
+            <div class="col-md-6"><div class="faq-item"><strong>Does it support PDF resumes?</strong><p class="mb-0 mt-2">Yes, the ATS checker accepts PDF uploads and analyzes them instantly.</p></div></div>
+            <div class="col-md-6"><div class="faq-item"><strong>Can I use it for interview prep?</strong><p class="mb-0 mt-2">Absolutely. It includes AI-supported interview evaluation and coaching cues.</p></div></div>
+            <div class="col-md-6"><div class="faq-item"><strong>Is the experience mobile-friendly?</strong><p class="mb-0 mt-2">Yes, the layout is responsive and polished on every screen size.</p></div></div>
+        </div>
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="container">
+        <div class="cta-card text-center">
+            <h2 class="mb-3">Build a sharper career story with AI</h2>
+            <p class="mb-4">Join the next generation of hiring preparation and present yourself like a premium candidate.</p>
+            <a href="{{ url_for('register') }}" class="btn btn-primary-custom"><i class="fa-solid fa-rocket me-2"></i> Get Started</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Job Matcher — HireFlow{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-8">
+            <div class="saas-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <div class="hero-badge"><i class="fa-solid fa-briefcase me-1"></i> Job-to-Resume Alignment</div>
+                        <h2 class="mb-2">Find the right fit fast</h2>
+                        <p class="mb-0 text-muted">Upload your resume and paste the role you want. HireFlow will identify match quality and missing capabilities.</p>
+                    </div>
+                    <a href="{{ url_for('hub') }}" class="btn btn-outline-primary-custom"><i class="fa-solid fa-arrow-left me-2"></i> Hub</a>
+                </div>
+                <form method="POST" action="{{ url_for('match_upload') }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="fa-solid fa-file-pdf me-2"></i> Resume (PDF)</label>
+                        <input type="file" class="form-control" name="resume" accept=".pdf" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="fa-solid fa-paste me-2"></i> Job Description</label>
+                        <textarea class="form-control" name="job_description" rows="10" placeholder="Paste the full job description here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom"><i class="fa-solid fa-magnifying-glass-chart me-2"></i> Analyze Match</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="saas-card">
+                <h5 class="mb-3">What the matcher evaluates</h5>
+                <ul class="detail-list">
+                    <li class="detected"><i class="fa-solid fa-check"></i><span>Required skills</span></li>
+                    <li class="detected"><i class="fa-solid fa-check"></i><span>Experience fit</span></li>
+                    <li class="detected"><i class="fa-solid fa-check"></i><span>Education alignment</span></li>
+                    <li class="detected"><i class="fa-solid fa-check"></i><span>Keyword coverage</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

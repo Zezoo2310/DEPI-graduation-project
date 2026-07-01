@@ -1,0 +1,758 @@
+{% extends "base.html" %}
+
+{% block title %}Live Interview - HireFlow{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 90vh;">
+    <div class="row justify-content-center">
+        <div class="col-xl-11 col-lg-12">
+
+            <!-- ══ HEADER ══ -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    {% if interview_language == 'Arabic' %}
+                    <h2 class="fw-bold mb-1" style="color: #fff;">
+                        <i class="fa-solid fa-video me-2 text-danger"></i>التقييم الحي بالذكاء الاصطناعي
+                    </h2>
+                    <p style="color: rgba(255,255,255,0.6); margin:0;">
+                        النظام يحلل تعابير وجهك، وتتبع العين، ونبرة الصوت في الوقت الحقيقي.
+                    </p>
+                    {% else %}
+                    <h2 class="fw-bold mb-1" style="color: #fff;">
+                        <i class="fa-solid fa-video me-2 text-danger"></i>Live AI Assessment
+                    </h2>
+                    <p style="color: rgba(255,255,255,0.6); margin:0;">
+                        The AI is analyzing your facial expressions, eye tracking, and voice patterns in real-time.
+                    </p>
+                    {% endif %}
+                </div>
+
+                <!-- Timer -->
+                <div class="timer-badge">
+                    <span class="text-uppercase fw-bold d-block mb-1" style="font-size:0.7rem; color:rgba(255,255,255,0.5); letter-spacing:1px;">TIME REMAINING</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rec-dot"></div>
+                        <span id="timer" class="fw-bold fs-2" style="font-family: monospace; color: #f87171;">{{ duration }}:00</span>
+                    </div>
+                    <div class="mt-2" style="font-size:0.85rem; color:rgba(255,255,255,0.65);">
+                        <i class="fa-solid fa-users me-1"></i> {{ speakers }} Speaker{{ 's' if speakers|int != 1 else '' }}
+                        &nbsp;•&nbsp;
+                        <i class="fa-solid fa-language me-1"></i> {{ interview_language }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ MAIN LAYOUT ══ -->
+            <div class="row g-4">
+
+                <!-- ── LEFT: Camera Feed ── -->
+                <div class="col-lg-7">
+                    <div class="camera-container shadow-lg">
+                        <!-- Camera Header -->
+                        <div class="camera-header d-flex justify-content-between px-3 py-2">
+                            <span style="color:#fff; font-size:0.85rem; font-weight:600;">
+                                <i class="fa-solid fa-circle-dot text-danger me-1 blink"></i> REC
+                            </span>
+                            <span style="color:rgba(255,255,255,0.6); font-size:0.8rem;">
+                                <i class="fa-solid fa-shield-halved me-1 text-success"></i> AI Active
+                            </span>
+                        </div>
+
+                        <!-- Video Feed (MJPEG stream from backend) -->
+                        <img id="video-feed"
+                             src="{{ url_for('video_feed') }}"
+                             alt="AI Camera Stream"
+                             class="w-100"
+                             style="object-fit: cover; background:#000; min-height: 420px; display:block;">
+
+                        <!-- Finish Overlay -->
+                        <div id="finish-overlay" class="finish-overlay d-none">
+                            <div class="text-center">
+                                <i class="fa-solid fa-check-circle fa-4x text-success mb-3"></i>
+                                {% if interview_language == 'Arabic' %}
+                                <h3 class="text-white fw-bold">اكتملت المقابلة!</h3>
+                                <p style="color:rgba(255,255,255,0.7);">جارٍ تحليل النتائج وإنشاء التقرير...</p>
+                                {% else %}
+                                <h3 class="text-white fw-bold">Interview Complete!</h3>
+                                <p style="color:rgba(255,255,255,0.7);">Analyzing results and generating your report...</p>
+                                {% endif %}
+                                <div class="spinner-border text-primary mt-2" role="status"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Live Analysis Bars (below camera) ── -->
+                    <div class="row g-3 mt-1">
+                        <div class="col-6">
+                            <div class="live-metric-card">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span style="color:#fff; font-size:0.8rem; font-weight:600;">
+                                        <i class="fa-solid fa-face-smile me-1 text-warning"></i> Facial Expressions
+                                    </span>
+                                    <span class="badge bg-success" style="font-size:0.7rem;">ACTIVE</span>
+                                </div>
+                                <div class="live-bar">
+                                    <div class="live-bar-fill bg-warning"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="live-metric-card">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span style="color:#fff; font-size:0.8rem; font-weight:600;">
+                                        <i class="fa-solid fa-eye me-1 text-info"></i> Eye Contact
+                                    </span>
+                                    <span class="badge bg-success" style="font-size:0.7rem;">ACTIVE</span>
+                                </div>
+                                <div class="live-bar">
+                                    <div class="live-bar-fill bg-info"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="live-metric-card">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span style="color:#fff; font-size:0.8rem; font-weight:600;">
+                                        <i class="fa-solid fa-microphone me-1 text-danger"></i> Voice Analysis
+                                    </span>
+                                    <span class="badge bg-success" style="font-size:0.7rem;">ACTIVE</span>
+                                </div>
+                                <div class="live-bar">
+                                    <div class="live-bar-fill bg-danger" id="voice-bar-fill" style="width: 5%; transition: width 0.1s ease-out; animation: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="live-metric-card">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span style="color:#fff; font-size:0.8rem; font-weight:600;">
+                                        <i class="fa-solid fa-mobile-screen me-1" style="color:#a78bfa;"></i> Device Detection
+                                    </span>
+                                    <span class="badge bg-success" style="font-size:0.7rem;">ACTIVE</span>
+                                </div>
+                                <div class="live-bar">
+                                    <div class="live-bar-fill" style="background:#a78bfa;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── RIGHT: Question Panel ── -->
+                <div class="col-lg-5">
+                    <!-- Question Counter -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 fw-bold" style="color:#fff;">
+                            <i class="fa-solid fa-comments me-2" style="color:#818cf8;"></i>
+                            {% if interview_language == 'Arabic' %}أسئلة المقابلة{% else %}Interview Questions{% endif %}
+                        </h5>
+                        <div class="question-counter">
+                            <span id="q-num" style="color:#818cf8; font-weight:700;">1</span>
+                            <span style="color:rgba(255,255,255,0.4);">/{{ total_questions }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Current Question Card -->
+                    <div class="question-card mb-4" id="question-card">
+                        <div class="question-category mb-2" id="q-category">General</div>
+                        <div class="question-text" id="q-text">Loading question...</div>
+                        <div class="question-tip mt-3" id="q-tip">
+                            <i class="fa-solid fa-lightbulb me-1" style="color:#fbbf24;"></i>
+                            <span id="q-tip-text">Take a moment to think before answering.</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar for question timer -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1" style="font-size:0.78rem; color:rgba(255,255,255,0.5);">
+                            <span>{% if interview_language == 'Arabic' %}الوقت لكل سؤال{% else %}Time per question{% endif %}</span>
+                            <span id="q-timer-text">50s</span>
+                        </div>
+                        <div class="q-progress-track">
+                            <div class="q-progress-fill" id="q-progress"></div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Questions Preview -->
+                    <div class="upcoming-card">
+                        <div class="mb-2" style="font-size:0.78rem; font-weight:600; color:rgba(255,255,255,0.4); letter-spacing:1px; text-transform:uppercase;">
+                            <i class="fa-solid fa-list me-1"></i> {% if interview_language == 'Arabic' %}القادم{% else %}Coming Up{% endif %}
+                        </div>
+                        <div id="upcoming-list"></div>
+                    </div>
+
+                    <!-- Tip Box -->
+                    <div class="tip-box mt-3">
+                        <i class="fa-solid fa-circle-info me-2" style="color:#818cf8;"></i>
+                        <span style="font-size:0.85rem; color:rgba(255,255,255,0.7);">
+                            Look directly at the camera. Speak clearly and at a moderate pace for the best AI score.
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--  STYLES                                        -->
+<!-- ══════════════════════════════════════════════ -->
+<style>
+/* ── Timer Badge ── */
+.timer-badge {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 12px 22px;
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+}
+.rec-dot {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: pulse-red 1.2s infinite;
+}
+@keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.6); }
+    50%       { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+}
+
+/* ── Camera Container ── */
+.camera-container {
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    border: 2px solid rgba(255,255,255,0.08);
+}
+.camera-header {
+    background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    padding-top: 10px;
+}
+.finish-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+}
+.d-none { display: none !important; }
+.blink { animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+/* ── Live Metric Cards ── */
+.live-metric-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+.live-bar {
+    height: 5px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    overflow: hidden;
+}
+.live-bar-fill {
+    height: 100%;
+    width: 100%;
+    border-radius: 99px;
+    animation: shimmer 2s linear infinite;
+    background-size: 200% 100%;
+}
+@keyframes shimmer {
+    0%   { opacity: 0.6; }
+    50%  { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* ── Question Card ── */
+.question-counter {
+    background: rgba(129,140,248,0.15);
+    border: 1px solid rgba(129,140,248,0.3);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-size: 0.9rem;
+}
+.question-card {
+    background: linear-gradient(135deg, rgba(129,140,248,0.1) 0%, rgba(167,139,250,0.08) 100%);
+    border: 1px solid rgba(129,140,248,0.25);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s ease;
+}
+.question-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; left: -30px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(129,140,248,0.2), transparent 70%);
+    border-radius: 50%;
+}
+.question-category {
+    display: inline-block;
+    background: rgba(129,140,248,0.2);
+    color: #a5b4fc;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.question-text {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.6;
+    min-height: 70px;
+}
+.question-tip {
+    background: rgba(251,191,36,0.08);
+    border: 1px solid rgba(251,191,36,0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.7);
+}
+
+/* ── Q Progress Bar ── */
+.q-progress-track {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+}
+.q-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #818cf8, #a78bfa);
+    border-radius: 99px;
+    transition: width 1s linear;
+}
+
+/* ── Upcoming Card ── */
+.upcoming-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+.upcoming-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.5);
+    font-size: 0.82rem;
+}
+.upcoming-item:last-child { border-bottom: none; }
+.upcoming-num {
+    width: 22px; height: 22px;
+    background: rgba(129,140,248,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #818cf8;
+    flex-shrink: 0;
+}
+
+/* ── Tip Box ── */
+.tip-box {
+    background: rgba(129,140,248,0.08);
+    border: 1px solid rgba(129,140,248,0.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+/* ── Question Slide Animation ── */
+@keyframes slideInFromBottom {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.q-animate {
+    animation: slideInFromBottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+</style>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--  JAVASCRIPT                                    -->
+<!-- ══════════════════════════════════════════════ -->
+<script>
+// ── Interview Questions Data ──
+const INTERVIEW_LANGUAGE = "{{ interview_language }}";
+const INTERVIEW_QUESTION_BANK = {
+    English: [
+        {
+            category: "Introduction",
+            text: "Tell me about yourself and your professional background.",
+            tip: "Keep it to 90 seconds. Focus on your skills and how they relate to the role."
+        },
+        {
+            category: "Strengths",
+            text: "What are your greatest strengths, and how do they help you in your work?",
+            tip: "Give a specific example from a past experience to support your answer."
+        },
+        {
+            category: "Weaknesses",
+            text: "What is one of your weaknesses, and how are you working to improve it?",
+            tip: "Be honest but show self-awareness. Mention steps you're taking to improve."
+        },
+        {
+            category: "Motivation",
+            text: "Why are you interested in this position and our company?",
+            tip: "Do your research. Mention specific things about the company that excite you."
+        },
+        {
+            category: "Problem Solving",
+            text: "Describe a challenging situation at work and how you handled it.",
+            tip: "Use the STAR method: Situation, Task, Action, Result."
+        },
+        {
+            category: "Teamwork",
+            text: "Can you describe an experience where you worked in a team to achieve a goal?",
+            tip: "Highlight your specific contribution and what the team accomplished together."
+        },
+        {
+            category: "Leadership",
+            text: "Have you ever led a project or team? What was the outcome?",
+            tip: "Even informal leadership counts — mention how you organized people toward a goal."
+        },
+        {
+            category: "Conflict",
+            text: "How do you handle disagreements or conflicts with colleagues?",
+            tip: "Show maturity. Focus on communication, empathy, and finding common ground."
+        },
+        {
+            category: "Goals",
+            text: "Where do you see yourself in 5 years professionally?",
+            tip: "Align your goals with growth in the company. Show ambition but also commitment."
+        },
+        {
+            category: "Pressure",
+            text: "How do you manage stress and tight deadlines?",
+            tip: "Give a real example. Mention specific tools or techniques like prioritization or time blocking."
+        },
+        {
+            category: "Achievement",
+            text: "What is your biggest professional achievement so far?",
+            tip: "Quantify your achievement if possible (e.g., increased sales by 20%, reduced time by 2 hours)."
+        },
+        {
+            category: "Culture Fit",
+            text: "What kind of work environment helps you perform at your best?",
+            tip: "Be genuine. Match your preference to what you know about the company culture."
+        },
+        {
+            category: "Creativity",
+            text: "Tell me about a time when you came up with an innovative solution to a problem.",
+            tip: "Creativity doesn't need to be dramatic — even small creative solutions count."
+        },
+        {
+            category: "Learning",
+            text: "How do you keep your skills and knowledge up to date?",
+            tip: "Mention courses, books, communities, or projects you work on outside of your job."
+        },
+        {
+            category: "Closing",
+            text: "Do you have any questions for us about the role or company?",
+            tip: "Always prepare 2-3 thoughtful questions. It shows genuine interest."
+        }
+    ],
+    Arabic: [
+        {
+            category: "المقدمة",
+            text: "احكِ لي عن نفسك وخبرتك المهنية.",
+            tip: "احرص أن تكون إجابتك في حدود دقيقة ونصف. ركز على مهاراتك وعلاقتها بالدور المطلوب."
+        },
+        {
+            category: "نقاط القوة",
+            text: "ما هي أقوى نقاط قوتك وكيف تساعدك في عملك؟",
+            tip: "اذكر مثالًا محددًا من تجربة سابقة لدعم إجابتك."
+        },
+        {
+            category: "نقاط الضعف",
+            text: "ما هي إحدى نقاط ضعفك وكيف تعمل على تحسينها؟",
+            tip: "كن صريحًا واظهر وعيك الذاتي. اذكر الخطوات التي تتبعها للتحسن."
+        },
+        {
+            category: "الدافع",
+            text: "لماذا أنت مهتم بهذه الوظيفة وشركتنا؟",
+            tip: "ابحث عن الشركة قبل المقابلة. اذكر أسبابًا محددة تجعل هذا الدور يهمك."
+        },
+        {
+            category: "حل المشكلات",
+            text: "صف موقفًا صعبًا في العمل وكيف تعاملت معه.",
+            tip: "استخدم طريقة STAR: الوضع، المهمة، الإجراء، النتيجة."
+        },
+        {
+            category: "العمل الجماعي",
+            text: "هل يمكنك وصف تجربة عملت فيها ضمن فريق لتحقيق هدف؟",
+            tip: "أظهر مساهمتك الخاصة وما الذي أنجزه الفريق معًا."
+        },
+        {
+            category: "القيادة",
+            text: "هل سبق أن قدت مشروعًا أو فريقًا؟ ما كانت النتيجة؟",
+            tip: "حتى القيادة غير الرسمية مهمة — اذكر كيف نظمت الأشخاص نحو هدف واحد."
+        },
+        {
+            category: "النزاع",
+            text: "كيف تتعامل مع الخلافات أو النزاعات مع الزملاء؟",
+            tip: "أظهر نضجًا. ركز على التواصل، والتعاطف، وإيجاد أرضية مشتركة."
+        },
+        {
+            category: "الأهداف",
+            text: "أين ترى نفسك بعد خمس سنوات مهنيًا؟",
+            tip: "اربط أهدافك بنموك في الشركة. أظهر طموحك والتزامك."
+        },
+        {
+            category: "الضغط",
+            text: "كيف تدير التوتر والمواعيد النهائية الضيقة؟",
+            tip: "اعرض مثالًا حقيقيًا. اذكر أدوات أو تقنيات مثل الأولويات وتقسيم الوقت."
+        },
+        {
+            category: "الإنجاز",
+            text: "ما هو أكبر إنجاز مهني حققته حتى الآن؟",
+            tip: "حاول أن تذكر نتائج قابلة للقياس مثل زيادة أو تحسين في الأداء."
+        },
+        {
+            category: "تناسب الثقافة",
+            text: "ما نوع بيئة العمل التي تساعدك على الأداء بأفضل شكل؟",
+            tip: "كن صادقًا. طابق تفضيلك مع ما تعرفه عن ثقافة الشركة."
+        },
+        {
+            category: "الإبداع",
+            text: "أخبرني عن مرة توصلت فيها إلى حل مبتكر لمشكلة.",
+            tip: "الإبداع لا يحتاج أن يكون كبيرًا — حتى الحلول البسيطة المبتكرة تهم."
+        },
+        {
+            category: "التعلم",
+            text: "كيف تحافظ على تطوير مهاراتك ومعرفتك؟",
+            tip: "اذكر دورات أو كتب أو مجتمعات أو مشاريع تعمل عليها خارج وظيفتك."
+        },
+        {
+            category: "الختام",
+            text: "هل لديك أي أسئلة لنا عن الدور أو الشركة؟",
+            tip: "جهز 2-3 أسئلة مدروسة. هذا يظهر اهتمامك الحقيقي."
+        }
+    ]
+};
+const INTERVIEW_QUESTIONS = INTERVIEW_QUESTION_BANK[INTERVIEW_LANGUAGE] || INTERVIEW_QUESTION_BANK.English;
+
+// Shuffle questions randomly
+INTERVIEW_QUESTIONS.sort(() => Math.random() - 0.5);
+
+// ── State ──
+let currentQIndex = 0;
+let durationMinutes = parseInt("{{ duration }}");
+let timeRemaining   = durationMinutes * 60;
+const totalQuestions = parseInt("{{ total_questions }}");
+
+// Divide total time by number of questions
+const QUESTION_INTERVAL = Math.floor(timeRemaining / totalQuestions);
+let qSecondsLeft  = QUESTION_INTERVAL;
+let qTimerInterval;
+
+// ── Render question ──
+function renderQuestion(index) {
+    if (index >= INTERVIEW_QUESTIONS.length) return;
+    const q = INTERVIEW_QUESTIONS[index];
+
+    const card   = document.getElementById('question-card');
+    const qNum   = document.getElementById('q-num');
+    const qCat   = document.getElementById('q-category');
+    const qText  = document.getElementById('q-text');
+    const qTip   = document.getElementById('q-tip-text');
+
+    // Animate out
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(10px)';
+
+    setTimeout(() => {
+        qNum.textContent  = index + 1;
+        qCat.textContent  = q.category;
+        qText.textContent = q.text;
+        qTip.textContent  = q.tip;
+
+        // Animate in
+        card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        card.style.opacity    = '1';
+        card.style.transform  = 'translateY(0)';
+    }, 200);
+
+    renderUpcoming(index);
+}
+
+// ── Render upcoming questions ──
+function renderUpcoming(currentIdx) {
+    const list = document.getElementById('upcoming-list');
+    list.innerHTML = '';
+    for (let i = currentIdx + 1; i < Math.min(currentIdx + 4, INTERVIEW_QUESTIONS.length); i++) {
+        const item = document.createElement('div');
+        item.className = 'upcoming-item';
+        item.innerHTML = `
+            <div class="upcoming-num">${i + 1}</div>
+            <div style="flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
+                ${INTERVIEW_QUESTIONS[i].text}
+            </div>
+        `;
+        list.appendChild(item);
+    }
+    if (list.innerHTML === '') {
+        list.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.82rem; text-align:center; padding:8px;">No more questions</div>';
+    }
+}
+
+// ── Per-question progress timer ──
+function startQuestionTimer() {
+    qSecondsLeft = QUESTION_INTERVAL;
+    document.getElementById('q-timer-text').textContent = qSecondsLeft + 's';
+    updateQProgress();
+
+    clearInterval(qTimerInterval);
+    qTimerInterval = setInterval(() => {
+        qSecondsLeft--;
+        document.getElementById('q-timer-text').textContent = qSecondsLeft + 's';
+        updateQProgress();
+
+        if (qSecondsLeft <= 0) {
+            clearInterval(qTimerInterval);
+            advanceQuestion();
+        }
+    }, 1000);
+}
+
+function updateQProgress() {
+    const pct = (qSecondsLeft / QUESTION_INTERVAL) * 100;
+    document.getElementById('q-progress').style.width = pct + '%';
+
+    // Color shifts as time runs out
+    const fill = document.getElementById('q-progress');
+    if (pct > 50)      fill.style.background = 'linear-gradient(90deg,#818cf8,#a78bfa)';
+    else if (pct > 20) fill.style.background = 'linear-gradient(90deg,#f59e0b,#fbbf24)';
+    else               fill.style.background = 'linear-gradient(90deg,#ef4444,#f87171)';
+}
+
+function advanceQuestion() {
+    currentQIndex++;
+    if (currentQIndex < INTERVIEW_QUESTIONS.length) {
+        renderQuestion(currentQIndex);
+        startQuestionTimer();
+    }
+}
+
+// ── Main interview countdown ──
+let timerInterval;
+
+function startMainTimer() {
+    timerInterval = setInterval(() => {
+        if (timeRemaining > 0) {
+            timeRemaining--;
+            const m = Math.floor(timeRemaining / 60);
+            const s = timeRemaining % 60;
+            document.getElementById('timer').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+        } else {
+            clearInterval(timerInterval);
+            clearInterval(qTimerInterval);
+            // Show the loading overlay IMMEDIATELY so the user knows it's processing
+            document.getElementById('finish-overlay').classList.remove('d-none');
+        }
+    }, 1000);
+}
+
+// ── Poll backend for report ──
+let pollInterval;
+function checkReport() {
+    fetch('/interview-check-report')
+        .then(r => r.json())
+        .then(data => {
+            if (data.ready) {
+                clearInterval(pollInterval);
+                clearInterval(timerInterval);
+                clearInterval(qTimerInterval);
+                document.getElementById('finish-overlay').classList.remove('d-none');
+                setTimeout(() => { window.location.href = '/interview-results'; }, 2000);
+            }
+        })
+        .catch(err => console.log('Polling...', err));
+}
+pollInterval = setInterval(checkReport, 3000);
+
+// ── INIT ──
+document.getElementById('q-num') && (document.getElementById('q-num').parentElement.querySelector('span:last-child').textContent = '/' + totalQuestions);
+renderQuestion(0);
+
+// Synchronize timers with the actual camera feed starting
+let cameraStarted = false;
+document.getElementById('video-feed').onload = function() {
+    if (!cameraStarted) {
+        cameraStarted = true;
+        console.log("Camera feed loaded, starting timers synchronized with backend.");
+        startQuestionTimer();
+        startMainTimer();
+        startLiveVoiceMeter();
+    }
+};
+
+// ── Live Voice Meter using Web Audio API ──
+let audioContext, analyser, microphone, javascriptNode;
+function startLiveVoiceMeter() {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    .then(function(stream) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(stream);
+        javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+        analyser.smoothingTimeConstant = 0.8;
+        analyser.fftSize = 1024;
+
+        microphone.connect(analyser);
+        analyser.connect(javascriptNode);
+        javascriptNode.connect(audioContext.destination);
+
+        const voiceBar = document.getElementById('voice-bar-fill');
+        javascriptNode.onaudioprocess = function() {
+            let array = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(array);
+            let values = 0;
+            let length = array.length;
+            for (let i = 0; i < length; i++) {
+                values += (array[i]);
+            }
+            let average = values / length;
+            // Map average volume (typically 0 to ~100) to a percentage width (min 5%)
+            let mappedWidth = Math.min(100, Math.max(5, average * 1.5));
+            if(voiceBar) voiceBar.style.width = mappedWidth + "%";
+            
+            // Change color based on volume to simulate "analysis"
+            if(average > 40) {
+                voiceBar.className = "live-bar-fill bg-success";
+            } else if (average > 10) {
+                voiceBar.className = "live-bar-fill bg-warning";
+            } else {
+                voiceBar.className = "live-bar-fill bg-danger";
+            }
+        }
+    })
+    .catch(function(err) {
+        console.error("Microphone access denied for live meter: ", err);
+    });
+}
+</script>
+
+{% endblock %}

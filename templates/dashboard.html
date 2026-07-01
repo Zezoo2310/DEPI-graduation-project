@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}ATS Results — {{ filename }}{% endblock %}
+
+{% block content %}
+<section class="dashboard-section pb-5">
+    <div class="container">
+
+        <!-- ═══════════ HEADER ═══════════ -->
+        <div class="text-center mb-5">
+            <h1 class="dashboard-title">ATS Analysis Results</h1>
+            <p class="text-muted"><i class="fa-solid fa-file-pdf me-1"></i> {{ filename }}</p>
+        </div>
+
+        <div class="row g-4">
+            
+            <!-- ═══════════ LEFT COLUMN (Score & Recs) ═══════════ -->
+            <div class="col-lg-4">
+                
+                <!-- SCORE HERO -->
+                <div class="saas-card text-center mb-4 hover-effect">
+                    <div class="score-hero">
+                        <div class="score-circle-wrapper score-{{ ats.grade|lower }}">
+                            <svg class="score-svg" viewBox="0 0 100 100">
+                                <circle class="score-bg" cx="50" cy="50" r="45"></circle>
+                                {% set dash_offset = 283 - (283 * ats.percentage / 100) %}
+                                <circle class="score-progress" cx="50" cy="50" r="45"
+                                        style="stroke-dasharray: 283; stroke-dashoffset: {{ dash_offset }};"></circle>
+                            </svg>
+                            <div class="score-text">
+                                <span class="score-number">{{ ats.percentage }}</span><span class="score-percent">%</span>
+                            </div>
+                        </div>
+                        <h2 class="score-grade mb-1">{{ ats.grade }}</h2>
+                        <p class="text-muted mb-0 fw-medium">
+                            {{ ats.total_score }} / {{ ats.total_max }} points
+                        </p>
+                    </div>
+                </div>
+
+                <!-- CATEGORY BREAKDOWN -->
+                <div class="saas-card mb-4">
+                    <h3 class="card-title text-muted" style="font-size: 1.1rem;"><i class="fa-solid fa-chart-column me-2"></i> Score Breakdown</h3>
+
+                    {% set category_info = {
+                        'contact':    {'label': 'Contact Info', 'icon': 'fa-id-badge',     'color': 'var(--primary)'},
+                        'structure':  {'label': 'Structure',    'icon': 'fa-layer-group',  'color': 'var(--success)'},
+                        'skills':     {'label': 'Skills',       'icon': 'fa-code',         'color': 'var(--error)'},
+                        'experience': {'label': 'Experience',   'icon': 'fa-briefcase',    'color': 'var(--warning)'},
+                        'education':  {'label': 'Education',    'icon': 'fa-graduation-cap','color': 'var(--info)'},
+                        'formatting': {'label': 'Formatting',   'icon': 'fa-file-lines',   'color': 'var(--text-secondary)'}
+                    } %}
+
+                    {% for key, info in category_info.items() %}
+                        {% set cat = ats.categories[key] %}
+                        {% set pct = ((cat.score / cat.max) * 100) | round | int if cat.max > 0 else 0 %}
+                        <div class="breakdown-row mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-muted small fw-medium"><i class="fa-solid {{ info.icon }} me-1" style="color: {{ info.color }};"></i> {{ info.label }}</span>
+                                <span class="small fw-bold text-secondary">{{ cat.score }}/{{ cat.max }}</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width: {{ pct }}%; background: {{ info.color }};"
+                                     aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- RECOMMENDATIONS -->
+                {% if ats.recommendations %}
+                <div class="saas-card recommendation-card-soft">
+                    <h3 class="card-title text-warning" style="font-size: 1.1rem;">
+                        <i class="fa-solid fa-lightbulb"></i> Recommendations
+                    </h3>
+                    <div class="recommendation-list">
+                        {% for rec in ats.recommendations %}
+                            <div class="rec-item">
+                                <i class="fa-solid fa-circle-arrow-right icon"></i>
+                                <p>{{ rec }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ═══════════ RIGHT COLUMN (Detected & Missing) ═══════════ -->
+            <div class="col-lg-8">
+                
+                <!-- DETECTED INFORMATION -->
+                <div class="saas-card mb-4">
+                    <h3 class="card-title text-success">
+                        <i class="fa-solid fa-circle-check"></i> Detected Information
+                    </h3>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-heading"><i class="fa-solid fa-address-card text-muted"></i> Contact</div>
+                                <ul class="detail-list">
+                                    {% if features.contact.has_name %}
+                                        <li class="detected"><i class="fa-solid fa-check"></i> <span>Name: <strong>{{ features.contact.name }}</strong></span></li>
+                                    {% endif %}
+                                    {% if features.contact.has_job_title %}
+                                        <li class="detected"><i class="fa-solid fa-check"></i> <span>Job Title: <strong>{{ features.contact.job_title }}</strong></span></li>
+                                    {% endif %}
+                                    {% if features.contact.has_email %}
+                                        <li class="detected"><i class="fa-solid fa-check"></i> <span>Email: <strong>{{ features.contact.emails[0] }}</strong></span></li>
+                                    {% endif %}
+                                    {% if features.contact.has_phone %}
+                                        <li class="detected"><i class="fa-solid fa-check"></i> <span>Phone: <strong>{{ features.contact.phones[0] }}</strong></span></li>
+                                    {% endif %}
+                                    {% if features.contact.has_linkedin %}
+                                        <li class="detected"><i class="fa-solid fa-check"></i> <span>LinkedIn: <strong>{{ features.contact.linkedin }}</strong></span></li>
+                                    {% endif %}
+                                    {% if features.contact.has_github %}
+                                        <li class="detected"><i class="fa-solid fa-check"></i> <span>GitHub: <strong>{{ features.contact.github }}</strong></span></li>
+                                    {% endif %}
+                                    {% if features.contact.has_location %}
+                                        <li class="detected"><i class="fa-solid fa-check"></i> <span>Location: <strong>{{ features.contact.location }}</strong></span></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-heading"><i class="fa-solid fa-bars-staggered text-muted"></i> Sections Found</div>
+                                <ul class="detail-list">
+                                    {% set section_labels = {
+                                        'has_summary': 'Summary', 'has_education': 'Education',
+                                        'has_experience': 'Experience', 'has_skills': 'Skills',
+                                        'has_projects': 'Projects', 'has_certifications': 'Certifications',
+                                        'has_languages': 'Languages', 'has_achievements': 'Achievements'
+                                    } %}
+                                    {% for key, label in section_labels.items() %}
+                                        {% if features.sections[key] %}
+                                            <li class="detected"><i class="fa-solid fa-check"></i> <span>{{ label }}</span></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="info-section">
+                                <div class="info-heading"><i class="fa-solid fa-code text-muted"></i> Technical Skills ({{ features.technical_skills_count }})</div>
+                                {% if features.technical_skills %}
+                                    <div class="tags-container">
+                                        {% for skill in features.technical_skills %}
+                                            <span class="tag tag-tech">{{ skill }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted small">No technical skills detected.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="info-section">
+                                <div class="info-heading"><i class="fa-solid fa-users text-muted"></i> Soft Skills ({{ features.soft_skills_count }})</div>
+                                {% if features.soft_skills %}
+                                    <div class="tags-container">
+                                        {% for skill in features.soft_skills %}
+                                            <span class="tag tag-soft">{{ skill }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted small">No soft skills detected.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if features.education.has_degree %}
+                        <div class="col-12">
+                            <div class="info-section mb-0">
+                                <div class="info-heading"><i class="fa-solid fa-graduation-cap text-muted"></i> Education</div>
+                                <ul class="detail-list">
+                                    <li class="detected"><i class="fa-solid fa-check"></i> <span>Degree: <strong>{{ features.education.degree_type }}</strong></span></li>
+                                    {% if features.education.major %}
+                                        <li class="detected"><i class="fa-solid fa-check"></i> <span>Major: <strong>{{ features.education.major }}</strong></span></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- MISSING SECTIONS & STATS -->
+                <div class="saas-card">
+                    <h3 class="card-title text-danger">
+                        <i class="fa-solid fa-circle-xmark"></i> Missing Sections
+                    </h3>
+                    
+                    <ul class="detail-list mb-4 missing-grid">
+                        {% for key, label in section_labels.items() %}
+                            {% if not features.sections[key] %}
+                                <li class="missing"><i class="fa-solid fa-xmark"></i> <span><strong>{{ label }}</strong></span></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if not features.contact.has_name %}
+                            <li class="missing"><i class="fa-solid fa-xmark"></i> <span><strong>Full Name</strong></span></li>
+                        {% endif %}
+                        {% if not features.contact.has_email %}
+                            <li class="missing"><i class="fa-solid fa-xmark"></i> <span><strong>Email Address</strong></span></li>
+                        {% endif %}
+                        {% if not features.contact.has_phone %}
+                            <li class="missing"><i class="fa-solid fa-xmark"></i> <span><strong>Phone Number</strong></span></li>
+                        {% endif %}
+                        {% if not features.contact.has_linkedin %}
+                            <li class="missing"><i class="fa-solid fa-xmark"></i> <span><strong>LinkedIn Profile</strong></span></li>
+                        {% endif %}
+                        {% if not features.contact.has_github %}
+                            <li class="missing"><i class="fa-solid fa-xmark"></i> <span><strong>GitHub Profile</strong></span></li>
+                        {% endif %}
+                        {% if not features.contact.has_location %}
+                            <li class="missing"><i class="fa-solid fa-xmark"></i> <span><strong>Location</strong></span></li>
+                        {% endif %}
+                    </ul>
+
+                    <!-- Content Stats -->
+                    <h3 class="card-title mt-5">
+                        <i class="fa-solid fa-chart-pie text-muted"></i> Document Stats
+                    </h3>
+                    <div class="stats-grid mb-2">
+                        <div class="stat-box">
+                            <span class="stat-value">{{ features.word_count }}</span>
+                            <span class="stat-label">Words</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value">{{ features.formatting.page_count }}</span>
+                            <span class="stat-label">Pages</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value">{{ features.years_of_experience if features.years_of_experience else 'N/A' }}</span>
+                            <span class="stat-label">Years Exp.</span>
+                        </div>
+                    </div>
+
+                    <!-- Formatting Warnings -->
+                    {% if features.formatting.has_image or features.formatting.has_table or features.formatting.multi_column_layout %}
+                        <div class="warning-container mt-4">
+                            {% if features.formatting.has_image %}
+                                <div class="warning-box">
+                                    <i class="fa-solid fa-image"></i>
+                                    <p><strong>Images:</strong> ATS systems often cannot parse images. Keep your resume text-based.</p>
+                                </div>
+                            {% endif %}
+                            {% if features.formatting.has_table %}
+                                <div class="warning-box">
+                                    <i class="fa-solid fa-table"></i>
+                                    <p><strong>Tables:</strong> Tables can scramble text parsing in older ATS systems.</p>
+                                </div>
+                            {% endif %}
+                            {% if features.formatting.multi_column_layout %}
+                                <div class="warning-box">
+                                    <i class="fa-solid fa-columns"></i>
+                                    <p><strong>Multi-column:</strong> Single-column layouts are parsed much more accurately.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ═══════════ ANALYZE ANOTHER ═══════════ -->
+        <div class="text-center mb-5 mt-5">
+            <a href="{{ url_for('ats_checker') }}" class="btn-primary-custom text-decoration-none">
+                <i class="fa-solid fa-rotate-right me-2"></i> Analyze Another Resume
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<!-- Animation for the circular progress bar on load -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+            const progressCircle = document.querySelector('.score-progress');
+            if(progressCircle) {
+                // Trigger reflow to start transition
+                progressCircle.style.strokeDashoffset = progressCircle.getAttribute('style').split('stroke-dashoffset: ')[1].split(';')[0];
+            }
+        }, 100);
+    });
+</script>
+{% endblock %}

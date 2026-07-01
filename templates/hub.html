@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Hub — HireFlow{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-shell">
+        <aside class="sidebar-card">
+            <h5 class="fw-bold mb-3">Workspace</h5>
+            <a class="sidebar-link active" href="{{ url_for('hub') }}"><span><i class="fa-solid fa-grid-2 me-2"></i> Overview</span><i class="fa-solid fa-angle-right"></i></a>
+            <a class="sidebar-link" href="{{ url_for('ats_checker') }}"><span><i class="fa-solid fa-file-pdf me-2"></i> ATS Checker</span><i class="fa-solid fa-angle-right"></i></a>
+            <a class="sidebar-link" href="{{ url_for('job_matcher') }}"><span><i class="fa-solid fa-briefcase me-2"></i> Job Matcher</span><i class="fa-solid fa-angle-right"></i></a>
+            <a class="sidebar-link" href="{{ url_for('interview_prep') }}"><span><i class="fa-solid fa-video me-2"></i> Interview Prep</span><i class="fa-solid fa-angle-right"></i></a>
+            <a class="sidebar-link" href="{{ url_for('logout') }}"><span><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</span><i class="fa-solid fa-angle-right"></i></a>
+        </aside>
+
+        <div>
+            <div class="dashboard-hero mb-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div>
+                        <div class="hero-badge" style="background: rgba(255,255,255,.16); color:white; border-color: rgba(255,255,255,.2);">Welcome back</div>
+                        <h2 class="mb-2">Hello, {{ current_user.name.split()[0] }} 👋</h2>
+                        <p class="mb-0" style="color: rgba(255,255,255,.85);">Your next career move starts with a sharper profile, better positioning, and smarter preparation.</p>
+                    </div>
+                    <a href="{{ url_for('ats_checker') }}" class="btn btn-outline-light"><i class="fa-solid fa-arrow-up-right-from-square me-2"></i> Analyze Resume</a>
+                </div>
+            </div>
+
+            <div class="dashboard-kpis mb-4">
+                <div class="kpi-card"><div class="value">92%</div><div class="text-muted small">ATS readiness</div></div>
+                <div class="kpi-card"><div class="value">6</div><div class="text-muted small">Actions pending</div></div>
+                <div class="kpi-card"><div class="value">84/100</div><div class="text-muted small">Interview confidence</div></div>
+            </div>
+
+            <div class="module-grid">
+                <a href="{{ url_for('ats_checker') }}" class="module-card text-decoration-none text-dark">
+                    <i class="fa-solid fa-file-pdf mb-3"></i>
+                    <h5>ATS Resume Checker</h5>
+                    <p class="text-muted small mb-0">Upload your CV to surface optimization opportunities and increase compatibility.</p>
+                </a>
+                <a href="{{ url_for('job_matcher') }}" class="module-card text-decoration-none text-dark">
+                    <i class="fa-solid fa-briefcase mb-3"></i>
+                    <h5>Job Matcher</h5>
+                    <p class="text-muted small mb-0">Find the alignment between your experience and a target role.</p>
+                </a>
+                <a href="{{ url_for('interview_prep') }}" class="module-card text-decoration-none text-dark">
+                    <i class="fa-solid fa-video mb-3"></i>
+                    <h5>Interview Prep</h5>
+                    <p class="text-muted small mb-0">Practice with an AI interview flow and improve your performance.</p>
+                </a>
+                <div class="module-card">
+                    <i class="fa-solid fa-chart-line mb-3"></i>
+                    <h5>Career Insights</h5>
+                    <p class="text-muted small mb-0">A premium overview of your progress, readiness, and next best steps.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

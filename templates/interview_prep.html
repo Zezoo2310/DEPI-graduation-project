@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Analysis — HireFlow{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- ── HEADER ── -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold text-primary mb-2">
+                <i class="fa-solid fa-video me-2"></i> Interview Performance Analysis
+            </h1>
+            <p class="text-muted lead mb-0">Upload your interview report to get personalized body language advice.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="{{ url_for('hub') }}" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-2"></i> Back to Hub
+            </a>
+        </div>
+    </div>
+
+    <!-- ── LAUNCHER ── -->
+    <div class="saas-card mb-4 text-center py-5">
+        <h3 class="mb-3">Ready to test your skills?</h3>
+        <p class="text-muted mb-4">Click the button below to launch the AI Smart Camera. Make sure your camera and microphone are connected. Once the interview finishes, the system will automatically analyze your performance and redirect you here.</p>
+        
+        <form id="launch-form" method="POST" action="{{ url_for('launch_interview') }}">
+            <div class="row g-3 mb-4 justify-content-center">
+                <!-- Duration Selector -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-muted">
+                        <i class="fa-solid fa-clock me-1"></i> Select Interview Duration
+                    </label>
+                    <select class="form-select form-select-lg" name="duration">
+                        <option value="1">1 Minute (Quick Test)</option>
+                        <option value="2" selected>2 Minutes</option>
+                        <option value="3">3 Minutes</option>
+                        <option value="5">5 Minutes</option>
+                        <option value="10">10 Minutes (Full Interview)</option>
+                        <option value="30">30 Minutes (Deep Dive)</option>
+                    </select>
+                </div>
+
+                <!-- Speaker Count Selector -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-muted">
+                        <i class="fa-solid fa-users me-1"></i> Number of Speakers
+                    </label>
+                    <select class="form-select form-select-lg" name="speakers">
+                        <option value="1" selected>1 Speaker</option>
+                        <option value="2">2 Speakers</option>
+                        <option value="3">3 Speakers</option>
+                        <option value="4">4 Speakers</option>
+                        <option value="5">5 Speakers</option>
+                        <option value="6">6 Speakers</option>
+                    </select>
+                </div>
+
+                <!-- Interview Language Selector -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold text-muted">
+                        <i class="fa-solid fa-language me-1"></i> Interview Language
+                    </label>
+                    <select class="form-select form-select-lg" name="language">
+                        <option value="Arabic">Arabic</option>
+                        <option value="English" selected>English</option>
+                        <option value="Mixed">Mixed</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary-custom btn-lg shadow-sm" id="launch-btn" style="padding: 15px 40px; font-size: 1.2rem; border-radius: 50px;">
+                <i class="fa-solid fa-play me-2"></i> Start AI Interview
+            </button>
+        </form>
+
+        <!-- Loading state -->
+        <div id="loading-state" style="display: none;" class="mt-4">
+            <div class="spinner-border text-primary mb-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 class="text-primary">Interview in Progress...</h5>
+            <p class="text-muted small">Please interact with the camera window. Do not close this browser tab.</p>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('launch-form').addEventListener('submit', function() {
+            document.getElementById('launch-btn').style.display = 'none';
+            document.getElementById('loading-state').style.display = 'block';
+        });
+    </script>
+
+    <!-- ── HOW IT WORKS ── -->
+    <div class="saas-card" style="background: var(--primary-light);">
+        <h5 class="mb-3"><i class="fa-solid fa-circle-info text-primary me-2"></i> How It Works</h5>
+        <div class="row g-3">
+            <div class="col-md-3 text-center">
+                <div style="font-size: 2rem; color: var(--primary);">
+                    <i class="fa-solid fa-video"></i>
+                </div>
+                <p class="mt-2 mb-0 small fw-medium">1. Run the Smart Interview camera system</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div style="font-size: 2rem; color: var(--primary);">
+                    <i class="fa-solid fa-file-export"></i>
+                </div>
+                <p class="mt-2 mb-0 small fw-medium">2. It generates a report (.txt file)</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div style="font-size: 2rem; color: var(--primary);">
+                    <i class="fa-solid fa-upload"></i>
+                </div>
+                <p class="mt-2 mb-0 small fw-medium">3. Upload the report here</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div style="font-size: 2rem; color: var(--primary);">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <p class="mt-2 mb-0 small fw-medium">4. Get AI-powered body language advice</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

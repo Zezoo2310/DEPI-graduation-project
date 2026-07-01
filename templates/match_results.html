@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Match Results — HireFlow{% endblock %}
+
+{% block content %}
+<section class="dashboard-section pb-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="dashboard-title">Job Match Results</h1>
+            <p class="text-muted"><i class="fa-solid fa-briefcase me-1"></i> {{ job_title }}</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- LEFT COLUMN: Score & Decision -->
+            <div class="col-lg-4">
+                <!-- SCORE HERO -->
+                <div class="saas-card text-center mb-4 hover-effect">
+                    <div class="score-hero">
+                        <div class="score-circle-wrapper {% if result.score >= 70 %}score-a{% elif result.score >= 50 %}score-b{% else %}score-c{% endif %}">
+                            <svg class="score-svg" viewBox="0 0 100 100">
+                                <circle class="score-bg" cx="50" cy="50" r="45"></circle>
+                                {% set dash_offset = 283 - (283 * result.score / 100) %}
+                                <circle class="score-progress" cx="50" cy="50" r="45"
+                                        style="stroke-dasharray: 283; stroke-dashoffset: {{ dash_offset }};"></circle>
+                            </svg>
+                            <div class="score-text">
+                                <span class="score-number">{{ result.score }}</span><span class="score-percent">%</span>
+                            </div>
+                        </div>
+                        <h2 class="mb-1 fw-bold {% if result.decision == 'Suitable' %}text-success{% else %}text-danger{% endif %}">
+                            {% if result.decision == 'Suitable' %}
+                                <i class="fa-solid fa-circle-check me-1"></i> {{ result.decision }}
+                            {% else %}
+                                <i class="fa-solid fa-circle-xmark me-1"></i> {{ result.decision }}
+                            {% endif %}
+                        </h2>
+                        <p class="text-muted mb-0 small">Match Score</p>
+                    </div>
+                </div>
+
+                <!-- MATCH BREAKDOWN -->
+                <div class="saas-card mb-4">
+                    <h3 class="card-title text-muted" style="font-size: 1.1rem;"><i class="fa-solid fa-chart-column me-2"></i> Match Breakdown</h3>
+
+                    <div class="breakdown-row mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small fw-medium"><i class="fa-solid fa-code me-1" style="color: var(--primary);"></i> Skills Overlap</span>
+                            <span class="small fw-bold text-secondary">{{ result.skills_overlap_pct }}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;"><div class="progress-bar" style="width: {{ result.skills_overlap_pct }}%; background: var(--primary);"></div></div>
+                    </div>
+
+                    <div class="breakdown-row mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small fw-medium"><i class="fa-solid fa-align-left me-1" style="color: var(--info);"></i> Description Match</span>
+                            <span class="small fw-bold text-secondary">{{ result.text_similarity }}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;"><div class="progress-bar" style="width: {{ result.text_similarity }}%; background: var(--info);"></div></div>
+                    </div>
+
+                    <div class="breakdown-row mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small fw-medium"><i class="fa-solid fa-graduation-cap me-1" style="color: var(--success);"></i> Education</span>
+                            <span class="small fw-bold text-secondary">{{ (result.education_match * 100)|round|int }}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;"><div class="progress-bar" style="width: {{ result.education_match * 100 }}%; background: var(--success);"></div></div>
+                    </div>
+
+                    <div class="breakdown-row mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small fw-medium"><i class="fa-solid fa-clock me-1" style="color: var(--warning);"></i> Experience</span>
+                            <span class="small fw-bold text-secondary">{{ (result.experience_match * 100)|round|int }}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;"><div class="progress-bar" style="width: {{ result.experience_match * 100 }}%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+
+                <!-- RECOMMENDATIONS -->
+                {% if result.recommendations %}
+                <div class="saas-card recommendation-card-soft">
+                    <h3 class="card-title text-warning" style="font-size: 1.1rem;">
+                        <i class="fa-solid fa-lightbulb"></i> Recommendations
+                    </h3>
+                    <div class="recommendation-list">
+                        {% for rec in result.recommendations %}
+                            <div class="rec-item">
+                                <i class="fa-solid fa-circle-arrow-right icon"></i>
+                                <p>{{ rec }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- RIGHT COLUMN: Skills Details -->
+            <div class="col-lg-8">
+                <!-- MATCHED SKILLS -->
+                <div class="saas-card mb-4">
+                    <h3 class="card-title text-success">
+                        <i class="fa-solid fa-circle-check"></i> Matched Skills ({{ result.matched_skills|length }})
+                    </h3>
+                    {% if result.matched_skills %}
+                        <div class="tags-container">
+                            {% for skill in result.matched_skills %}
+                                <span class="tag tag-tech" style="background: var(--success-light); color: #065f46; border-color: var(--success);">
+                                    <i class="fa-solid fa-check me-1"></i> {{ skill }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small">No matching skills found between your resume and this job.</p>
+                    {% endif %}
+                </div>
+
+                <!-- MISSING SKILLS -->
+                <div class="saas-card mb-4">
+                    <h3 class="card-title text-danger">
+                        <i class="fa-solid fa-circle-xmark"></i> Missing Skills ({{ result.missing_skills|length }})
+                    </h3>
+                    {% if result.missing_skills %}
+                        <div class="tags-container">
+                            {% for skill in result.missing_skills %}
+                                <span class="tag" style="background: var(--error-light); color: #991b1b; border-color: var(--error);">
+                                    <i class="fa-solid fa-xmark me-1"></i> {{ skill }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small">You have all the required skills! 🎉</p>
+                    {% endif %}
+                </div>
+
+                <!-- RESUME SKILLS (from extraction) -->
+                {% if resume_skills %}
+                <div class="saas-card mb-4">
+                    <h3 class="card-title">
+                        <i class="fa-solid fa-user-check text-muted"></i> Your Resume Skills ({{ resume_skills|length }})
+                    </h3>
+                    <div class="tags-container">
+                        {% for skill in resume_skills %}
+                            {% if skill.lower() in result.matched_skills %}
+                                <span class="tag tag-tech" style="background: var(--success-light); color: #065f46;">{{ skill }}</span>
+                            {% else %}
+                                <span class="tag tag-tech">{{ skill }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- EXTRACTED JOB INFO -->
+                {% if jd_parsed %}
+                <div class="saas-card" style="background: var(--primary-light);">
+                    <h3 class="card-title">
+                        <i class="fa-solid fa-wand-magic-sparkles text-primary"></i> Extracted from Job Description
+                    </h3>
+                    <ul class="detail-list">
+                        {% if jd_parsed.job_title %}
+                            <li class="detected"><i class="fa-solid fa-check"></i> <span>Job Title: <strong>{{ jd_parsed.job_title }}</strong></span></li>
+                        {% endif %}
+                        {% if jd_parsed.education %}
+                            <li class="detected"><i class="fa-solid fa-check"></i> <span>Education: <strong>{{ jd_parsed.education }}</strong></span></li>
+                        {% endif %}
+                        {% if jd_parsed.experience %}
+                            <li class="detected"><i class="fa-solid fa-check"></i> <span>Experience: <strong>{{ jd_parsed.experience }}</strong></span></li>
+                        {% endif %}
+                        <li class="detected"><i class="fa-solid fa-check"></i> <span>Skills Detected: <strong>{{ jd_parsed.skills|length }} skills</strong></span></li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="text-center mb-5 mt-5">
+            <a href="{{ url_for('job_matcher') }}" class="btn-primary-custom text-decoration-none">
+                <i class="fa-solid fa-rotate-right me-2"></i> Try Another Match
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

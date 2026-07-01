@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}ATS Resume Checker — HireFlow{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7 text-center text-lg-start">
+                <div class="hero-badge"><i class="fa-solid fa-sparkles me-1"></i> AI-Powered ATS Analysis</div>
+                <h1 class="hero-title">Make your resume <span class="text-gradient">machine-readable and recruiter-ready</span></h1>
+                <p class="hero-subtitle">Upload your PDF and receive a premium ATS report with structure scoring, skill visibility, and clear improvement suggestions.</p>
+                <div class="feature-pills justify-content-start">
+                    <span class="pill"><i class="fa-solid fa-address-card"></i> Contact</span>
+                    <span class="pill"><i class="fa-solid fa-layer-group"></i> Structure</span>
+                    <span class="pill"><i class="fa-solid fa-code"></i> Skills</span>
+                    <span class="pill"><i class="fa-solid fa-briefcase"></i> Experience</span>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="saas-card">
+                    <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+                        <div class="upload-zone" id="dropZone">
+                            <div class="upload-icon-wrapper"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                            <h4 class="upload-title">Drop your resume here</h4>
+                            <p class="upload-hint">PDF only • Max 16MB</p>
+                            <input type="file" name="resume" id="resumeInput" accept=".pdf" class="d-none" required>
+                            <div class="file-info d-none" id="fileInfo">
+                                <i class="fa-solid fa-file-pdf text-danger fa-lg"></i>
+                                <span id="fileName"></span>
+                                <button type="button" class="btn btn-sm btn-light ms-3 rounded-circle" id="removeFile"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary-custom w-100 mt-4" id="submitBtn" disabled><i class="fa-solid fa-magnifying-glass me-2"></i> Analyze Resume</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if samples and samples|length > 0 %}
+<section class="section-block">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="section-title">Try a sample resume</h2>
+            <p class="section-copy mx-auto">Preview the analysis experience with one of our built-in examples.</p>
+        </div>
+        <div class="row g-4">
+            {% for sample in samples %}
+            <div class="col-lg-4 col-md-6">
+                <div class="saas-card sample-card hover-effect">
+                    <div class="sample-header">
+                        <div class="sample-avatar">{{ sample.name[0] }}</div>
+                        <div>
+                            <h5 class="sample-name">{{ sample.name }}</h5>
+                            {% if sample.expected_roles %}<span class="sample-role">{{ sample.expected_roles[0] }}</span>{% endif %}
+                        </div>
+                    </div>
+                    <p class="sample-desc">{{ sample.description[:120] }}{% if sample.description|length > 120 %}...{% endif %}</p>
+                    <form action="{{ url_for('analyze_sample') }}" method="POST" class="mt-auto">
+                        <input type="hidden" name="sample_index" value="{{ loop.index0 }}">
+                        <button type="submit" class="btn-sample"><i class="fa-solid fa-circle-play me-1"></i> Analyze</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const input = document.getElementById('resumeInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const removeBtn = document.getElementById('removeFile');
+    const submitBtn = document.getElementById('submitBtn');
+    const uploadForm = document.getElementById('uploadForm');
+
+    dropZone.addEventListener('click', () => input.click());
+    ['dragenter','dragover'].forEach(evt => dropZone.addEventListener(evt, e => {e.preventDefault(); dropZone.classList.add('drag-over');}));
+    ['dragleave','drop'].forEach(evt => dropZone.addEventListener(evt, e => {e.preventDefault(); dropZone.classList.remove('drag-over');}));
+    dropZone.addEventListener('drop', e => { const files = e.dataTransfer.files; if (files.length > 0 && files[0].type === 'application/pdf') { input.files = files; showFile(files[0]); } });
+    input.addEventListener('change', () => { if (input.files.length > 0) showFile(input.files[0]); });
+    function showFile(file){ fileName.textContent = file.name; fileInfo.classList.remove('d-none'); dropZone.querySelector('.upload-icon-wrapper').classList.add('d-none'); dropZone.querySelector('.upload-title').classList.add('d-none'); dropZone.querySelector('.upload-hint').classList.add('d-none'); submitBtn.disabled = false; }
+    removeBtn.addEventListener('click', e => { e.stopPropagation(); input.value=''; fileInfo.classList.add('d-none'); dropZone.querySelector('.upload-icon-wrapper').classList.remove('d-none'); dropZone.querySelector('.upload-title').classList.remove('d-none'); dropZone.querySelector('.upload-hint').classList.remove('d-none'); submitBtn.disabled = true; });
+    uploadForm.addEventListener('submit', () => { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Analyzing...'; });
+    document.querySelectorAll('.btn-sample').forEach(btn => { btn.closest('form').addEventListener('submit', () => { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Analyzing...'; }); });
+</script>
+{% endblock %}
